@@ -1,0 +1,32 @@
+[fynd-sticky-target]{
+    height: 90vh;
+     position: sticky;
+     top: 12vh;
+     z-index: 2;
+ }
+ [fynd-scroll-blocks]{
+     display: none;
+ }
+ /* main element to decide the scroll height*/
+ [fynd-scroll-source]{
+     height: 80vh;
+ }
+ [fynd-sticky-source]{
+     height: 80vh;
+     position: absolute;
+     top: 0px;
+     opacity: 0;
+     background-color: transparent;
+ }
+ [fynd-scroll-container]{
+     opacity: 0;
+ }
+ [fynd-sticky-target] {
+     height: 80vh;
+     border-radius: 1rem;
+     overflow: hidden;
+ }
+ [fynd-scroll-column]{
+     padding-left: 0rem;
+     padding-right: 0rem;
+ }
