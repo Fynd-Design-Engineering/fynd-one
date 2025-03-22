@@ -22,7 +22,10 @@ Include GSAP in the project:
 Include the script in the project:
 
 ```html
-<script src="path-to-script.js"></script>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/gh/Fynd-Design-Engineering/fynd-one@v1.0.2/drawer/index.js"
+></script>
 ```
 
 ## Usage
