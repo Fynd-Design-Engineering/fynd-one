@@ -30,3 +30,22 @@
      padding-left: 0rem;
      padding-right: 0rem;
  }
+
+ /* disable everything from tablet and below */
+ @media (max-width: 991px) {
+    [fynd-scroll-container]{
+        opacity: 0;
+        display: none ;
+    }
+    [fynd-scroll-blocks]{
+        display: flex;
+    }
+    [fynd-sticky-source]{
+        height: auto;
+        position: static;
+        opacity: 1;
+    }
+    [fynd-scroll-source]{
+        height: auto;
+    }
+  }

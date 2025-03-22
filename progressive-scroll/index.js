@@ -134,14 +134,7 @@ function getScrollContainer() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  initScrollBlocks(); //scroll blocks moved
-  initProgressiveScroll(); // initialting scroll trggaers
-  getScrollContainer(); // showing container after initalisation to avoid glitch
-});
-
-//dynamic color
-document.addEventListener("DOMContentLoaded", function () {
+function dynamiColorDesktop() {
   document.querySelectorAll("[fynd-sticky-bg]").forEach((element) => {
     let bgColor = element.getAttribute("fynd-sticky-bg");
     if (/^#([0-9A-F]{3}){1,2}$/i.test(bgColor)) {
@@ -150,4 +143,49 @@ document.addEventListener("DOMContentLoaded", function () {
       console.warn(`Invalid hex color: ${bgColor} for element`, element);
     }
   });
-});
+}
+function dynamicColorMobile() {
+  const bgColor = document
+    .querySelector("[fynd-sticky-bg]")
+    .getAttribute("fynd-sticky-bg");
+  console.log(
+    "%cprogressive-scroll/index.js:151 bgColor",
+    "color: #007acc;",
+    bgColor
+  );
+  document.querySelectorAll("[fynd-card-bg-mobile]").forEach((element) => {
+    if (/^#([0-9A-F]{3}){1,2}$/i.test(bgColor)) {
+      element.style.backgroundColor = bgColor;
+    } else {
+      console.warn(`Invalid hex color: ${bgColor} for element`, element);
+    }
+  });
+}
+// fynd-card-bg-mobile
+
+function handleResize() {
+  // window.location.reload();
+  if (window.innerWidth > 991) {
+    dynamiColorDesktop();
+    initScrollBlocks(); // Scroll blocks moved
+    initProgressiveScroll(); // Initiating scroll triggers
+    getScrollContainer(); // Showing container after initialization to avoid glitch
+  } else {
+    dynamicColorMobile();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", handleResize);
+window.addEventListener("resize", handleResize);
+
+//dynamic color
+// document.addEventListener("DOMContentLoaded", function () {
+//   document.querySelectorAll("[fynd-sticky-bg]").forEach((element) => {
+//     let bgColor = element.getAttribute("fynd-sticky-bg");
+//     if (/^#([0-9A-F]{3}){1,2}$/i.test(bgColor)) {
+//       element.style.backgroundColor = bgColor;
+//     } else {
+//       console.warn(`Invalid hex color: ${bgColor} for element`, element);
+//     }
+//   });
+// });
