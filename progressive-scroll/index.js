@@ -81,7 +81,7 @@ function initProgressiveScroll() {
       trigger: section,
       start: "top 50%",
       end: "bottom 50%", // Add an end position
-      markers: true, // Helpful for debugging - remove in production
+      // markers: true,
       onEnter: () => {
         console.log("Enter:", section.getAttribute("fynd-scroll-source"));
         debouncedScrollTrigger(section.getAttribute("fynd-scroll-source"));
@@ -176,7 +176,6 @@ function handleResize() {
 }
 
 document.addEventListener("DOMContentLoaded", handleResize);
-window.addEventListener("resize", handleResize);
 
 //dynamic color
 // document.addEventListener("DOMContentLoaded", function () {
