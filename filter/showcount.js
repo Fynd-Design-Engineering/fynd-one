@@ -47,9 +47,6 @@ function updateCountText(totalCount) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const totalCountText = document.querySelector("[fynd-filters-count]");
-  totalCountText.style.display = "none";
-
   setTimeout(() => {
     let totalCount = logUrlParams();
     updateCountText(totalCount);
