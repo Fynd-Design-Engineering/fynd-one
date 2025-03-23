@@ -391,7 +391,15 @@
     background: transparent;
   }
 
-  /* Mobile */
+  /* 
+    Reverse apply background for Hero section in Mobile
+    Remove background from Hero, apply to image only
+  */
+  @media (min-width: 768px) {
+    .hero--right-image-wrap[data-bg] {
+      background: transparent;
+    }
+  }
   @media (max-width: 767px) {
     .section_hero-50-50[data-bg] {
       background: transparent;
