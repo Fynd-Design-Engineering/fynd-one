@@ -391,6 +391,12 @@
     background: transparent;
   }
 
+  /* Mobile */
+  @media (max-width: 767px) {
+    .section_hero-50-50[data-bg] {
+      background: transparent;
+    }
+  }
 
 
   /* Hide scrollbar for Chrome, Safari and Opera */
