@@ -406,6 +406,7 @@
   
   /* -----------------------------------------------------------------*/
   /* Utilities */
+  
   [data-truncate] {
   	display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -414,3 +415,13 @@
     text-overflow: ellipsis;
   }
   
+  [style-line-clamp] {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  [style-line-clamp="1"] { -webkit-line-clamp: 1; }
+  [style-line-clamp="2"] { -webkit-line-clamp: 2; }
+  [style-line-clamp="3"] { -webkit-line-clamp: 3; }
+  [style-line-clamp="4"] { -webkit-line-clamp: 4; }
