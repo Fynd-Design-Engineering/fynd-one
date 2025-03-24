@@ -1,69 +1,85 @@
 # FAQ Accordion Script
 
-This script implements a FAQ accordion with animations using GSAP. It allows multiple FAQ sections to be grouped together and ensures only one is open at a time. It also supports dynamic image updates when switching between FAQs.
+This script is a JavaScript implementation for an interactive FAQ accordion system using GSAP for animations. It allows for two types of behavior:
 
-## Features
-
-- Expands and collapses FAQ sections smoothly.
-- Ensures only one FAQ is open per group.
-- Updates group images dynamically when a FAQ opens.
-- Uses GSAP for smooth animations.
+- **One-at-a-time:** Only one FAQ item remains open at a time, and at least one must always stay open.
+- **Multiple-at-a-time:** Any number of FAQ items can be opened or closed independently.
 
 ## How It Works
 
-1. **Initialization**
+### 1. **Event Listener for DOMContentLoaded**
 
-   - The script waits for the DOM to load before executing.
-   - It selects all FAQ wrappers using `[fynd-faq-element="wrapper"]`.
-   - For each wrapper, it identifies related elements (toggle button, content area, animation elements, etc.).
-   - It checks if the FAQ should be initially open (`fynd-faq-initialopen="true"`).
-   - If initially open, it sets the content height to `auto`, and updates the associated group image.
+When the DOM content loads, the script:
 
-2. **Accordion Toggle**
+- Selects all FAQ wrappers (`[fynd-faq-element="wrapper"]`).
+- Loops through each FAQ wrapper and identifies its elements:
+  - The toggle button (`[fynd-faq-element="toggle"]`)
+  - The content sections (`[fynd-faq-element="content"]` and `[fynd-faq-element="content-inner"]`)
+  - The animated icon lines (`[fynd-faq-element="x-line"]` and `[fynd-faq-element="y-line"]`)
+- Determines if the FAQ belongs to a group (`[fynd-faq-group]`).
+- Determines whether the FAQ should start in an open or closed state.
 
-   - When a user clicks the toggle button, the script checks if it is already animating to prevent rapid clicks.
-   - If the clicked FAQ is the only open one in the group, it remains open.
-   - If the clicked FAQ is closed, the script:
-     - Closes all other FAQs in the same group.
-     - Opens the selected FAQ with a smooth animation.
-     - Updates the group image (if applicable).
+### 2. **Initial State Setup**
 
-3. **Animation**
+- If the FAQ has `fynd-faq-initialopen="true"`, it starts open:
+  - The height is set to `auto`.
+  - Opacity of the content is set to `1`.
+  - Toggle icon is rotated.
+- Otherwise, it starts closed:
+  - Height is set to `0`.
+  - Opacity is `0`.
+  - Toggle icon is in the default position.
 
-   - Uses GSAP to animate the height and opacity of the content.
-   - Rotates the toggle icon lines (`x-line` and `y-line`) for a smooth transition.
-   - Ensures animations complete before another action can take place.
+### 3. **Click Event Listener for Toggle**
 
-4. **Updating Group Images**
-   - If a FAQ has an associated image (`fynd-faq-image-source`), it updates the corresponding group image (`fynd-faq-image-target`).
-   - This ensures the image reflects the active FAQ.
+- Prevents multiple animations from conflicting by setting an `isAnimating` flag.
+- Determines if the FAQ is currently open.
+- If in **"one-at-a-time"** mode:
+  - Ensures at least one FAQ remains open.
+  - Closes other open FAQs before opening a new one.
+- Calls `openAccordion` or `closeAccordion` based on the current state.
 
-## HTML/Webflow Structure
+### 4. **Opening an Accordion (`openAccordion`)**
 
-```html
-<div fynd-faq-group="example-group">
-  <div fynd-faq-element="wrapper" fynd-faq-initialopen="true">
-    <div fynd-faq-element="toggle">
-      <div fynd-faq-element="x-line"></div>
-      <div fynd-faq-element="y-line"></div>
-    </div>
-    <div fynd-faq-element="content">
-      <div fynd-faq-element="content-inner">
-        <p>FAQ answer goes here.</p>
-        <img fynd-faq-image-source src="example.jpg" alt="Example Image" />
-      </div>
-    </div>
-  </div>
-</div>
-<img
-  fynd-faq-image-target="example-group"
-  src="default.jpg"
-  alt="Group Image"
-/>
-```
+- Animates:
+  - Expanding height of content.
+  - Fading in content text.
+  - Rotating toggle icon.
+- Updates FAQ's state to "open".
+- If the FAQ group has an associated image, updates it.
 
-## Customization
+### 5. **Closing an Accordion (`closeAccordion`)**
 
-- **Modify GSAP animations**: Adjust animation duration, easing, and effects.
-- **Change the HTML structure**: Ensure elements have the correct attributes for proper functionality.
-- **Update image logic**: Modify `updateFaqGroupImage()` to suit custom requirements.
+- Animates:
+  - Collapsing height of content.
+  - Fading out content text.
+  - Resetting toggle icon rotation.
+- Updates FAQ's state to "closed".
+
+### 6. **Closing Other Accordions in the Same Group (`closeOtherAccordions`)**
+
+- Loops through all open accordions in the same group and closes them.
+
+### 7. **Updating Group Image (`updateFaqGroupImage`)**
+
+- Finds a group-level image (`[fynd-faq-image-target]`).
+- Finds an image inside the opened FAQ (`[fynd-faq-image-source]`).
+- Updates the group image source accordingly.
+
+### 8. **Ensuring One FAQ Remains Open (`ensureOneFaqOpen`)**
+
+- In "one-at-a-time" mode, checks if any FAQ is open.
+- If none are open, opens the first FAQ in the group.
+
+## How to Use
+
+1. Add the required HTML structure with attributes like `fynd-faq-element`, `fynd-faq-group`, and `fynd-faq-type`.
+2. Include GSAP for animations.
+3. Include this JavaScript file in your project.
+4. Ensure each FAQ has a toggle button, content section, and optional group settings.
+
+## Dependencies
+
+- [GSAP (GreenSock Animation Platform)](https://greensock.com/gsap/)
+
+This script makes FAQ sections more interactive and user-friendly while maintaining a clean and organized structure.
