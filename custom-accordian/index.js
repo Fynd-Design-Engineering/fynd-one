@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Get all FAQ wrappers
   const faqWrappers = document.querySelectorAll('[fynd-faq-element="wrapper"]');
 
-  // Initialize all FAQ items
   faqWrappers.forEach((wrapper) => {
     const toggle = wrapper.querySelector('[fynd-faq-element="toggle"]');
     const content = wrapper.querySelector('[fynd-faq-element="content"]');
@@ -12,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const xLine = toggle.querySelector('[fynd-faq-element="x-line"]');
     const yLine = toggle.querySelector('[fynd-faq-element="y-line"]');
 
-    // Find the closest parent with fynd-faq-group
     const groupContainer = wrapper.closest("[fynd-faq-group]");
     const groupName = groupContainer
       ? groupContainer.getAttribute("fynd-faq-group")
@@ -33,21 +30,29 @@ document.addEventListener("DOMContentLoaded", () => {
       toggle.setAttribute("data-state", "closed");
     }
 
-    // Add click event to toggle with debounce
     let isAnimating = false;
     toggle.addEventListener("click", () => {
       if (isAnimating) return;
-
       isAnimating = true;
       const isOpen = toggle.getAttribute("data-state") === "open";
+
+      // Get all open FAQs in the same group
+      const openFAQs = groupContainer.querySelectorAll(
+        '[fynd-faq-element="wrapper"] [data-state="open"]'
+      );
+
+      if (isOpen && openFAQs.length === 1) {
+        // Prevent closing if it's the only open FAQ in the group
+        isAnimating = false;
+        return;
+      }
 
       if (isOpen) {
         closeAccordion(wrapper, () => {
           isAnimating = false;
         });
       } else {
-        // Close all other FAQs in the same group before opening the new one
-        if (groupName) closeOtherAccordions(groupContainer);
+        closeOtherAccordions(groupContainer);
         openAccordion(wrapper, () => {
           isAnimating = false;
         });
@@ -58,14 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Function to close all other open accordions in the same group
 function closeOtherAccordions(groupContainer) {
-  groupContainer
-    .querySelectorAll('[fynd-faq-element="wrapper"]')
-    .forEach((wrapper) => {
-      const toggle = wrapper.querySelector('[fynd-faq-element="toggle"]');
-      if (toggle.getAttribute("data-state") === "open") {
-        closeAccordion(wrapper);
-      }
-    });
+  const openFAQs = groupContainer.querySelectorAll(
+    '[fynd-faq-element="wrapper"] [data-state="open"]'
+  );
+
+  openFAQs.forEach((openToggle) => {
+    const wrapper = openToggle.closest('[fynd-faq-element="wrapper"]');
+    closeAccordion(wrapper);
+  });
 }
 
 function openAccordion(wrapper, callback) {
