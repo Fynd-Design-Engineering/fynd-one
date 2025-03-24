@@ -439,3 +439,44 @@
   [style-line-clamp="2"] { -webkit-line-clamp: 2; }
   [style-line-clamp="3"] { -webkit-line-clamp: 3; }
   [style-line-clamp="4"] { -webkit-line-clamp: 4; }
+
+    /* BENTO CARD TITLE TEXT COLOR */
+    [data-color="#0A4020"] { color: #0A4020;}
+    [data-color="#043B77"] { color: #043B77;}
+    [data-color="#FF0000"] { color: #FF0000;}
+    [data-color="#48310F"] { color: #48310F;}
+    [data-color="#F8F8F9"] { color: #F8F8F9;}
+    [data-color="white"] { color: #FFFFFF;}
+    [data-color="subtext-white"] { color: #A0A1A2;}
+  
+  
+  
+    /* GREEN SHADES */
+    [data-color="green-dark"] { color: #427C5A;}
+    [data-color="green-light"] { color: #B2E0C3;}
+  
+    /* BENTO CARD HEIGHT */
+    [data-height="25rem"] { height: 25rem; }
+    [data-height="26rem"] { height: 26.06rem; }
+    [data-height="31rem"] { height: 31.25rem; }
+    [data-height="39rem"] { height: 39.125rem; }
+  
+  
+  
+    /* BENTO CARD BACKGROUND COLOR */
+    [data-bg-color] { background-color: #F8F8F9; }
+  
+    /* BENTO CARD WIDTH
+    [data-width="45%"] { width: 48%; }
+    [data-width="100%"] { width: 100%; } */
+    @media screen and (max-width: 767px) {
+      *[data-height] {
+        height: 15.62rem;
+      }
+      div div.bento-card_text {
+        font-size: 0.875rem;
+      }
+      div p.bento-card_subtext {
+        font-size: 0.75rem;
+      }
+    }
