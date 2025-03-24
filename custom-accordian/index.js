@@ -9,17 +9,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const contentInner = wrapper.querySelector(
       '[fynd-faq-element="content-inner"]'
     );
+    const xLine = toggle.querySelector('[fynd-faq-element="x-line"]');
+    const yLine = toggle.querySelector('[fynd-faq-element="y-line"]');
 
     // Set initial state with proper styling for smooth transitions
     if (wrapper.getAttribute("fynd-faq-initialopen") === "true") {
       // Open it initially
       gsap.set(content, { height: "auto", overflow: "hidden" });
-      gsap.set(contentInner, { opacity: 1, y: 0 });
+      gsap.set(contentInner, { opacity: 1 });
+      gsap.set(xLine, { rotation: 180 });
+      gsap.set(yLine, { rotation: 270 });
       toggle.setAttribute("data-state", "open");
     } else {
       // Initialize as closed
-      gsap.set(content, { height: 0, overflow: "hidden" });
-      gsap.set(contentInner, { opacity: 0, y: 10 });
+      gsap.set(content, { height: 0 });
+      gsap.set(contentInner, { opacity: 0 });
+      gsap.set(xLine, { rotation: 0 });
+      gsap.set(yLine, { rotation: 0 });
       toggle.setAttribute("data-state", "closed");
     }
 
@@ -50,6 +56,8 @@ function openAccordion(wrapper, callback) {
   const contentInner = wrapper.querySelector(
     '[fynd-faq-element="content-inner"]'
   );
+  const xLine = toggle.querySelector('[fynd-faq-element="x-line"]');
+  const yLine = toggle.querySelector('[fynd-faq-element="y-line"]');
 
   // Clear any existing animations
   if (content.gsapAnimation) {
@@ -68,25 +76,48 @@ function openAccordion(wrapper, callback) {
   const height = content.offsetHeight;
   gsap.set(content, { height: 0, visibility: "visible", opacity: 1 });
 
-  // For super smooth animation:
-  // 1. Animate height with elastic ease for a slight bounce effect
-  timeline.to(content, {
-    height: height,
-    duration: 0.5,
-    ease: "back.out(1.2)",
-    clearProps: "height",
-    onComplete: () => {
-      // Set to 'auto' after animation to handle content changes
-      content.style.height = "auto";
+  // Animate the x and y lines
+  timeline.to(
+    xLine,
+    {
+      rotation: 180,
+      duration: 0.4,
+      ease: "power2.inOut",
     },
-  });
+    0
+  );
 
-  // 2. Fade and slide in the content
+  timeline.to(
+    yLine,
+    {
+      rotation: 270,
+      duration: 0.4,
+      ease: "power2.inOut",
+    },
+    0
+  );
+
+  // Animate height with elastic ease for a slight bounce effect
+  timeline.to(
+    content,
+    {
+      height: height,
+      duration: 0.5,
+      ease: "power3.inOut",
+      clearProps: "height",
+      onComplete: () => {
+        // Set to 'auto' after animation to handle content changes
+        content.style.height = "auto";
+      },
+    },
+    0
+  );
+
+  // Fade and slide in the content
   timeline.to(
     contentInner,
     {
       opacity: 1,
-      y: 0,
       duration: 0.4,
       ease: "power2.out",
     },
@@ -99,7 +130,6 @@ function openAccordion(wrapper, callback) {
   // Update state
   toggle.setAttribute("data-state", "open");
 
-  // Optional: subtle rotation for any icon in the toggle
   const icon = toggle.querySelector('[fynd-faq-element="chevron"]');
   if (icon) {
     gsap.to(icon, {
@@ -116,6 +146,8 @@ function closeAccordion(wrapper, callback) {
   const contentInner = wrapper.querySelector(
     '[fynd-faq-element="content-inner"]'
   );
+  const xLine = toggle.querySelector('[fynd-faq-element="x-line"]');
+  const yLine = toggle.querySelector('[fynd-faq-element="y-line"]');
 
   // Clear any existing animations
   if (content.gsapAnimation) {
@@ -133,16 +165,39 @@ function closeAccordion(wrapper, callback) {
     },
   });
 
-  // For super smooth animation:
-  // 1. Fade and slide out the content slightly upward
-  timeline.to(contentInner, {
-    opacity: 0,
-    y: -10,
-    duration: 0.3,
-    ease: "power2.in",
-  });
+  // Animate the x and y lines back to 0
+  timeline.to(
+    xLine,
+    {
+      rotation: 0,
+      duration: 0.4,
+      ease: "power2.inOut",
+    },
+    0
+  );
 
-  // 2. Shrink the height with a subtle ease
+  timeline.to(
+    yLine,
+    {
+      rotation: 0,
+      duration: 0.4,
+      ease: "power2.inOut",
+    },
+    0
+  );
+
+  // Fade and slide out the content slightly upward
+  timeline.to(
+    contentInner,
+    {
+      opacity: 0,
+      duration: 0.3,
+      ease: "power2.in",
+    },
+    0
+  );
+
+  // Shrink the height with a subtle ease
   timeline.to(
     content,
     {
@@ -150,7 +205,7 @@ function closeAccordion(wrapper, callback) {
       duration: 0.4,
       ease: "power3.inOut",
     },
-    "-=0.15"
+    "-=0.25"
   ); // Start before opacity animation completes
 
   // Store the animation in the element
