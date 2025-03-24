@@ -15,6 +15,11 @@ document.addEventListener("DOMContentLoaded", () => {
       ? groupContainer.getAttribute("fynd-faq-group")
       : null;
 
+    // Get the FAQ type - either "one-at-a-time" or "multiple-at-a-time"
+    const faqType = groupContainer
+      ? groupContainer.getAttribute("fynd-faq-type") || "one-at-a-time"
+      : "one-at-a-time";
+
     if (wrapper.getAttribute("fynd-faq-initialopen") === "true") {
       gsap.set(content, { height: "auto", overflow: "hidden" });
       gsap.set(contentInner, { opacity: 1 });
@@ -37,21 +42,33 @@ document.addEventListener("DOMContentLoaded", () => {
       isAnimating = true;
       const isOpen = toggle.getAttribute("data-state") === "open";
 
-      const openFAQs = groupContainer.querySelectorAll(
-        '[fynd-faq-element="wrapper"] [data-state="open"]'
-      );
+      // For "one-at-a-time" type, check if this is the last open FAQ
+      if (faqType === "one-at-a-time") {
+        const openFAQs = groupContainer.querySelectorAll(
+          '[fynd-faq-element="wrapper"] [data-state="open"]'
+        );
 
-      if (isOpen && openFAQs.length === 1) {
-        isAnimating = false;
-        return;
+        if (isOpen && openFAQs.length === 1) {
+          // Don't allow closing the last open FAQ in "one-at-a-time" mode
+          isAnimating = false;
+          return;
+        }
       }
 
+      // For "multiple-at-a-time" type, we can always toggle the current FAQ
+      // For "one-at-a-time" type, we close all others when opening a new one
+
       if (isOpen) {
+        // Always allow closing if it's open, regardless of mode
         closeAccordion(wrapper, () => {
           isAnimating = false;
         });
       } else {
-        closeOtherAccordions(groupContainer);
+        // If "one-at-a-time", close others before opening this one
+        if (faqType === "one-at-a-time") {
+          closeOtherAccordions(groupContainer);
+        }
+
         openAccordion(wrapper, groupName, () => {
           isAnimating = false;
         });
@@ -185,4 +202,33 @@ function updateFaqGroupImage(wrapper, groupName) {
 
   if (newSrc) groupImage.setAttribute("src", newSrc);
   if (newSrcset) groupImage.setAttribute("srcset", newSrcset);
+}
+
+// Function to ensure at least one FAQ is open in "one-at-a-time" mode
+function ensureOneFaqOpen(groupContainer) {
+  if (!groupContainer) return;
+
+  const faqType =
+    groupContainer.getAttribute("fynd-faq-type") || "one-at-a-time";
+
+  // Only apply this to "one-at-a-time" type
+  if (faqType !== "one-at-a-time") return;
+
+  const openFAQs = groupContainer.querySelectorAll(
+    '[fynd-faq-element="wrapper"] [data-state="open"]'
+  );
+
+  // If no FAQs are open, open the first one
+  if (openFAQs.length === 0) {
+    const firstFaq = groupContainer.querySelector(
+      '[fynd-faq-element="wrapper"]'
+    );
+    if (firstFaq) {
+      const firstToggle = firstFaq.querySelector('[fynd-faq-element="toggle"]');
+      if (firstToggle) {
+        const groupName = groupContainer.getAttribute("fynd-faq-group");
+        openAccordion(firstFaq, groupName);
+      }
+    }
+  }
 }
