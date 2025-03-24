@@ -15,13 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
       ? groupContainer.getAttribute("fynd-faq-group")
       : null;
 
-    // Set initial state
     if (wrapper.getAttribute("fynd-faq-initialopen") === "true") {
       gsap.set(content, { height: "auto", overflow: "hidden" });
       gsap.set(contentInner, { opacity: 1 });
       gsap.set(xLine, { rotation: 180 });
       gsap.set(yLine, { rotation: 270 });
       toggle.setAttribute("data-state", "open");
+
+      updateFaqGroupImage(wrapper, groupName); // Update image on load for initial open FAQ
     } else {
       gsap.set(content, { height: 0 });
       gsap.set(contentInner, { opacity: 0 });
@@ -36,13 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
       isAnimating = true;
       const isOpen = toggle.getAttribute("data-state") === "open";
 
-      // Get all open FAQs in the same group
       const openFAQs = groupContainer.querySelectorAll(
         '[fynd-faq-element="wrapper"] [data-state="open"]'
       );
 
       if (isOpen && openFAQs.length === 1) {
-        // Prevent closing if it's the only open FAQ in the group
         isAnimating = false;
         return;
       }
@@ -53,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } else {
         closeOtherAccordions(groupContainer);
-        openAccordion(wrapper, () => {
+        openAccordion(wrapper, groupName, () => {
           isAnimating = false;
         });
       }
@@ -61,19 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Function to close all other open accordions in the same group
-function closeOtherAccordions(groupContainer) {
-  const openFAQs = groupContainer.querySelectorAll(
-    '[fynd-faq-element="wrapper"] [data-state="open"]'
-  );
-
-  openFAQs.forEach((openToggle) => {
-    const wrapper = openToggle.closest('[fynd-faq-element="wrapper"]');
-    closeAccordion(wrapper);
-  });
-}
-
-function openAccordion(wrapper, callback) {
+function openAccordion(wrapper, groupName, callback) {
   const toggle = wrapper.querySelector('[fynd-faq-element="toggle"]');
   const content = wrapper.querySelector('[fynd-faq-element="content"]');
   const contentInner = wrapper.querySelector(
@@ -120,6 +107,9 @@ function openAccordion(wrapper, callback) {
   if (icon) {
     gsap.to(icon, { rotation: 180, duration: 0.4, ease: "back.out(1.7)" });
   }
+
+  // Update image for the group
+  updateFaqGroupImage(wrapper, groupName);
 }
 
 function closeAccordion(wrapper, callback) {
@@ -162,4 +152,37 @@ function closeAccordion(wrapper, callback) {
   if (icon) {
     gsap.to(icon, { rotation: 0, duration: 0.4, ease: "back.out(1.7)" });
   }
+}
+
+// Function to close all other accordions in the same group
+function closeOtherAccordions(groupContainer) {
+  const openFAQs = groupContainer.querySelectorAll(
+    '[fynd-faq-element="wrapper"] [data-state="open"]'
+  );
+  openFAQs.forEach((openToggle) => {
+    const wrapper = openToggle.closest('[fynd-faq-element="wrapper"]');
+    closeAccordion(wrapper);
+  });
+}
+
+// Function to update the group image
+function updateFaqGroupImage(wrapper, groupName) {
+  if (!groupName) return;
+
+  // Find the group-level image element
+  const groupImage = document.querySelector(
+    `[fynd-faq-image-target="${groupName}"]`
+  );
+  if (!groupImage) return;
+
+  // Find the image source inside the opened accordion
+  const imageSource = wrapper.querySelector("[fynd-faq-image-source]");
+  if (!imageSource) return;
+
+  // Update the group image with the new source
+  const newSrc = imageSource.getAttribute("src");
+  const newSrcset = imageSource.getAttribute("srcset");
+
+  if (newSrc) groupImage.setAttribute("src", newSrc);
+  if (newSrcset) groupImage.setAttribute("srcset", newSrcset);
 }
