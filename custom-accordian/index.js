@@ -12,8 +12,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const xLine = toggle.querySelector('[fynd-faq-element="x-line"]');
     const yLine = toggle.querySelector('[fynd-faq-element="y-line"]');
 
-    // Get the group name
-    const group = wrapper.getAttribute("fynd-faq-group");
+    // Find the closest parent with fynd-faq-group
+    const groupContainer = wrapper.closest("[fynd-faq-group]");
+    const groupName = groupContainer
+      ? groupContainer.getAttribute("fynd-faq-group")
+      : null;
 
     // Set initial state
     if (wrapper.getAttribute("fynd-faq-initialopen") === "true") {
@@ -44,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } else {
         // Close all other FAQs in the same group before opening the new one
-        closeOtherAccordions(group);
+        if (groupName) closeOtherAccordions(groupContainer);
         openAccordion(wrapper, () => {
           isAnimating = false;
         });
@@ -54,9 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Function to close all other open accordions in the same group
-function closeOtherAccordions(group) {
-  document
-    .querySelectorAll(`[fynd-faq-group="${group}"]`)
+function closeOtherAccordions(groupContainer) {
+  groupContainer
+    .querySelectorAll('[fynd-faq-element="wrapper"]')
     .forEach((wrapper) => {
       const toggle = wrapper.querySelector('[fynd-faq-element="toggle"]');
       if (toggle.getAttribute("data-state") === "open") {
