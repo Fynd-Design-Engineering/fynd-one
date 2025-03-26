@@ -421,7 +421,7 @@
   /* -----------------------------------------------------------------*/
   /* Utilities */
   
-  [data-truncate] {
+  [data-truncate="yes"] {
   	display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
