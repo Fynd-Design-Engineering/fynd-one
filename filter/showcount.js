@@ -8,16 +8,29 @@ function logUrlParams() {
   // Extract tags as an array
   const tags = urlParams.get("tag")?.split(",").filter(Boolean) || [];
 
+  // Extract tags as an array
+  const products = urlParams.get("product")?.split(",").filter(Boolean) || [];
+
+  // Extract tags as an array
+  const solutions = urlParams.get("solution")?.split(",").filter(Boolean) || [];
+
   // Check for verified toggle (should be "true" in URL)
   const verified = urlParams.get("verified") === "true";
 
   // Calculate total count
-  let totalCount = geography.length + tags.length + (verified ? 1 : 0);
+  let totalCount =
+    geography.length +
+    tags.length +
+    products.length +
+    solutions.length +
+    (verified ? 1 : 0);
 
   // Create JSON object
   const filters = {
     geography,
     tags,
+    products,
+    solutions,
     verified,
   };
 
