@@ -486,3 +486,15 @@
       background: url(https://cdn.prod.website-files.com/67a9c8e5f2c74ac8c2c9b88b/67e1b4072adad40eb22e201e_97d7b26441d6a95f90db1952a9d3e122_bg-theme-1.avif) no-repeat;
       background-size: cover;
     }
+
+    /* read page styles */
+
+    .w-richtext figure.w-richtext-align-fullwidth > figcaption {
+      font-size: 14px;
+  }
+  .blog_rich-text strong {
+      font-weight: 500;
+  }
+  .metric-rich-text strong {
+      font-weight: 500;
+  }
