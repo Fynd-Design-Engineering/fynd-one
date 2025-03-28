@@ -226,7 +226,9 @@
   @media (max-width: 767px) {
     [data-text-style="body-xs-regular"],
     [data-text-style="body-xs-medium"],
-    [data-text-style="body-xs-semibold"],
+    [data-text-style="body-xs-semibold"]{
+      font-size: 0.75rem; /* 10px */
+    }
     [data-text-style="body-s-regular"],
     [data-text-style="body-m-regular"]
     {
