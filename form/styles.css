@@ -1,0 +1,19 @@
+.custom-form_layout {
+    height: 42rem;
+}
+
+[fynd-form="fields"] {
+    margin-bottom: 0rem;
+}
+
+[fynd-form="pagination"] {
+    position: relative;
+    overflow: hidden;
+    border-radius: 100px;
+    background: #DEDEDE;
+}
+
+[fynd-form="pagination"] span {
+    background: #000000 !important;
+    border-radius: 100px;
+}
