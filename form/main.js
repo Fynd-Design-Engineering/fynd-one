@@ -1,20 +1,47 @@
-console.log("main.js loaded");
-
 let currentStep = 1; // Global variable to track current slide
 let stepperForm; // Store Swiper instance globally
 let formData = [];
+let isValid = false;
+let isButtonClicked = false;
 
 document.addEventListener("DOMContentLoaded", function () {
+  removeSelectFieldDivs();
   updatePageInfoField();
   initStepperSlides();
   initFormData();
   checkDuplicateIds();
 
+  document.querySelectorAll("[fynd-form='field']").forEach((input) => {
+    input.addEventListener("change", function () {
+      if (isButtonClicked) {
+        updateFormData();
+        stepFormValidation(currentStep);
+      }
+    });
+  });
+
   document
     .querySelector("[fynd-form='button']")
     .addEventListener("click", function () {
-      checkStepper(currentStep);
       updateFormData();
+      isValid = stepFormValidation(currentStep);
+
+      if (!isValid) {
+        // If invalid, show error message
+        console.log(
+          "%cform/main.js:12 Validation failed. Please check your inputs.",
+          "color: red; font-size: 16px; font-weight: bold;"
+        );
+        isButtonClicked = true;
+      } else {
+        console.log(
+          "%cform/main.js:12 Validation passed. Proceeding to next step.",
+          "color: green; font-size: 16px; font-weight: bold;"
+        );
+        // If valid, proceed to the next step
+        checkStepper(currentStep);
+        isButtonClicked = false;
+      }
     });
 });
 
@@ -65,6 +92,7 @@ function initFormData() {
       id: field.getAttribute("id") || "",
       type: field.getAttribute("type") || "",
       step: field.getAttribute("form-step") || "",
+      required: field.getAttribute("isRequired") || "",
       value: field.value || "",
     };
     formData.push(item);
@@ -125,4 +153,56 @@ function updatePageInfoField() {
   inputField.type = "hidden";
   inputField.id = window.location.pathname;
   inputField.value = window.location.href;
+}
+
+function removeSelectFieldDivs() {
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('select[fynd-form="field"]').forEach((select) => {
+      // Find and remove any <div> inside the <select>
+      select.querySelectorAll("div").forEach((div) => div.remove());
+    });
+  });
+}
+
+function stepFormValidation(stepNumber) {
+  const fieldsToValidate = formData.filter(
+    (field) => field.step === String(stepNumber)
+  );
+  const requiredFields = fieldsToValidate.filter(
+    (field) => field.required === "true"
+  );
+
+  let isValid = true; // Assume form is valid initially
+
+  requiredFields.forEach((field) => {
+    const inputField = document.getElementById(field.id);
+
+    if (inputField) {
+      // Remove previous error message if it exists
+      let errorElement =
+        inputField.parentElement.querySelector(".fynd-form-error");
+      if (errorElement) {
+        errorElement.remove();
+      }
+
+      if (!field.value.trim()) {
+        console.log(`${field.name} cannot be empty.`);
+        inputField.setAttribute("aria-invalid", "true");
+
+        // Create and append error message
+        const errorMessage = document.createElement("span");
+        errorMessage.className = "fynd-form-error";
+        errorMessage.textContent = `${field.name} cannot be empty.`;
+
+        inputField.parentElement.appendChild(errorMessage);
+
+        isValid = false; // Mark form as invalid
+      } else {
+        // Reset aria-invalid if input is valid
+        inputField.setAttribute("aria-invalid", "false");
+      }
+    }
+  });
+
+  return isValid; // Return true if no errors, false otherwise
 }
