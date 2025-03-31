@@ -1,0 +1,35 @@
+.custom-form_layout {
+    height: 42rem;
+}
+
+[fynd-form="fields"] {
+    margin-bottom: 0rem;
+}
+
+[fynd-form="pagination"] {
+    position: relative;
+    overflow: hidden;
+    border-radius: 100px;
+    background: #DEDEDE;
+}
+
+[fynd-form="pagination"] span {
+    background: #000000 !important;
+    border-radius: 100px;
+}
+
+
+select {
+    color: #B5B5B5;
+  }
+
+  select:valid {
+    color: black; 
+  }
+
+[aria-invalid="true"] {
+    border: 1px solid #F50031;
+}
+[aria-invalid="false"] {
+    border: 1px solid #E0E0E0;
+}
