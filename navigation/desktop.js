@@ -8,7 +8,13 @@ const dropdownDimensions = [
   {
     name: "solutions",
     width: 1026,
-    height: 618,
+    height: 668,
+    isCurrent: false,
+  },
+  {
+    name: "teams",
+    width: 262,
+    height: 354,
     isCurrent: false,
   },
   {
@@ -92,7 +98,7 @@ function updateDropdownState(navItemsWrapper) {
   navItemsWrapper.forEach((element) => {
     element.addEventListener("mouseleave", () => {
       isDropdownOpen = false;
-      console.log("close dropdown");
+      // console.log("close dropdown");
       closeDropdownWrapper();
     });
   });
@@ -119,15 +125,15 @@ function triggerDropdownOpen(currentLink, index) {
   }
 
   if (!isDropdownOpen) {
-    console.log(
-      "performing dropdown open animation because it was closed before 💀 🔥"
-    );
+    // console.log(
+    //   "performing dropdown open animation because it was closed before 💀 🔥"
+    // );
     updateNavHover(index);
     initDropdownContent(index);
     initMover(currentLink, index);
     openDropdownWrapper(index);
   } else {
-    console.log("no need to open again just move 😤");
+    // console.log("no need to open again just move 😤");
     updateNavHover(index);
     updateDropdownContent(index);
     animateMover(currentLink, index);
@@ -278,7 +284,7 @@ function updateDropdownContent(currentIndex) {
       // Show the selected one and animate opacity
       const currentContent = dropdownContents[currentIndex];
       if (currentContent) {
-        if (currentIndex == 0 || currentIndex == 1) {
+        if (currentIndex == 0 || currentIndex == 2) {
           currentContent.style.display = "grid";
         } else {
           currentContent.style.display = "block";
@@ -301,7 +307,7 @@ function initDropdownContent(currentIndex) {
   // Show only current content
   const currentContent = dropdownContents[currentIndex];
   if (currentContent) {
-    if (currentIndex == 0 || currentIndex == 1) {
+    if (currentIndex == 0 || currentIndex == 2) {
       currentContent.style.display = "grid";
     } else {
       currentContent.style.display = "block";
