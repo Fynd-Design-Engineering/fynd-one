@@ -163,6 +163,42 @@ function removeSelectFieldDivs() {
     });
   });
 }
+function showError(field, message) {
+  const inputField = document.getElementById(field.id);
+  if (inputField) {
+    // Remove previous error message if it exists
+    removeError(field);
+
+    console.log(message);
+    inputField.setAttribute("aria-invalid", "true");
+
+    // Create and append error message
+    const errorMessage = document.createElement("span");
+    errorMessage.className = "fynd-form-error";
+    errorMessage.textContent = message;
+
+    inputField.parentElement.appendChild(errorMessage);
+  }
+}
+
+function removeError(field) {
+  const inputField = document.getElementById(field.id);
+  if (inputField) {
+    inputField.setAttribute("aria-invalid", "false");
+
+    // Remove existing error message if present
+    let errorElement =
+      inputField.parentElement.querySelector(".fynd-form-error");
+    if (errorElement) {
+      errorElement.remove();
+    }
+  }
+}
+
+function isValidEmail(email) {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(email);
+}
 
 function stepFormValidation(stepNumber) {
   const fieldsToValidate = formData.filter(
@@ -175,32 +211,22 @@ function stepFormValidation(stepNumber) {
   let isValid = true; // Assume form is valid initially
 
   requiredFields.forEach((field) => {
-    const inputField = document.getElementById(field.id);
+    if (!field.value.trim()) {
+      showError(field, `${field.name} cannot be empty.`);
+      isValid = false; // Mark form as invalid
+    } else {
+      removeError(field);
+    }
+  });
 
-    if (inputField) {
-      // Remove previous error message if it exists
-      let errorElement =
-        inputField.parentElement.querySelector(".fynd-form-error");
-      if (errorElement) {
-        errorElement.remove();
-      }
-
-      if (!field.value.trim()) {
-        console.log(`${field.name} cannot be empty.`);
-        inputField.setAttribute("aria-invalid", "true");
-
-        // Create and append error message
-        const errorMessage = document.createElement("span");
-        errorMessage.className = "fynd-form-error";
-        errorMessage.textContent = `${field.name} cannot be empty.`;
-
-        inputField.parentElement.appendChild(errorMessage);
-
-        isValid = false; // Mark form as invalid
-      } else {
-        // Reset aria-invalid if input is valid
-        inputField.setAttribute("aria-invalid", "false");
-      }
+  // Validate email fields
+  const emailFields = fieldsToValidate.filter(
+    (field) => field.type === "email"
+  );
+  emailFields.forEach((field) => {
+    if (field.value.trim() && !isValidEmail(field.value.trim())) {
+      showError(field, `Please enter a valid email address.`);
+      isValid = false;
     }
   });
 
