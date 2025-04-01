@@ -3,13 +3,18 @@ let stepperForm; // Store Swiper instance globally
 let formData = [];
 let isValid = false;
 let isButtonClicked = false;
+let totalSteps = 0;
+let prevStep = 0;
 
 document.addEventListener("DOMContentLoaded", function () {
+  getTotalSteps();
   removeSelectFieldDivs();
+  updateButtonText();
   updatePageInfoField();
   initStepperSlides();
   initFormData();
   checkDuplicateIds();
+  updateStepTitle();
 
   document.querySelectorAll("[fynd-form='field']").forEach((input) => {
     input.addEventListener("change", function () {
@@ -33,12 +38,14 @@ document.addEventListener("DOMContentLoaded", function () {
           "color: red; font-size: 16px; font-weight: bold;"
         );
         isButtonClicked = true;
+        handleFormSubmit();
       } else {
         console.log(
           "%cform/main.js:12 Validation passed. Proceeding to next step.",
           "color: green; font-size: 16px; font-weight: bold;"
         );
         // If valid, proceed to the next step
+        handleFormSubmit();
         checkStepper(currentStep);
         isButtonClicked = false;
       }
@@ -65,8 +72,8 @@ function initStepperSlides() {
       crossFade: true, // Smooth fade transition
     },
     keyboard: {
-      enabled: true, // Enable keyboard navigation
-      onlyInViewport: true, // Navigation works only if Swiper is in viewport
+      enabled: false, // Enable keyboard navigation
+      onlyInViewport: false, // Navigation works only if Swiper is in viewport
     },
     pagination: {
       el: "[fynd-form='pagination']",
@@ -79,6 +86,8 @@ function initStepperSlides() {
     on: {
       slideChange: function () {
         currentStep = this.realIndex + 1; // Update global variable
+        updateButtonText();
+        updateStepTitle();
       },
     },
   });
@@ -110,7 +119,7 @@ function updateFormData() {
       item.value = field.value;
     }
   });
-  console.log("Updated Form Data:", formData);
+  // console.log("Updated Form Data:", formData);
 }
 
 function checkDuplicateIds() {
@@ -151,7 +160,6 @@ function updatePageInfoField() {
 
   inputField.name = "Page Info";
   inputField.type = "hidden";
-  inputField.id = window.location.pathname;
   inputField.value = window.location.href;
 }
 
@@ -231,4 +239,87 @@ function stepFormValidation(stepNumber) {
   });
 
   return isValid; // Return true if no errors, false otherwise
+}
+
+function getTotalSteps() {
+  totalSteps = document.querySelectorAll("[fynd-form-step]").length;
+  console.log(`totalSteps: ${totalSteps}`);
+}
+
+function updateButtonText() {
+  if (currentStep === totalSteps) {
+    document.querySelector("[fynd-form='button-text']").innerHTML = "Submit";
+  } else {
+    document.querySelector("[fynd-form='button-text']").innerHTML = "Next";
+  }
+}
+
+function updateStepTitle() {
+  const titleElement = document.querySelector('[fynd-form-field="title"]');
+  if (titleElement && totalSteps > 1) {
+    titleElement.textContent = `Step ${currentStep}/${totalSteps}`;
+  } else {
+    console.warn('Element with fynd-form-field="title" not found');
+  }
+}
+
+function handleFormSubmit() {
+  if (validateFormData(formData)) {
+    if (currentStep == totalSteps) {
+      console.log(
+        "%cform/main.js:12 Looking good. initiating form submission",
+        "color: yellow; font-size: 16px; font-weight: bold;"
+      );
+      let isSubmitted = submitForm();
+      if (isSubmitted) {
+        document.querySelector('[fynd-form-state="normal"]').style.display =
+          "none";
+        document.querySelector('[fynd-form-state="success"]').style.display =
+          "flex";
+      }
+    } else {
+      console.log("dont submit");
+    }
+  } else {
+    console.log(
+      "%cform/main.js:272 only valid forms will be submitted",
+      "color:rgb(204, 0, 0);",
+      isValid
+    );
+  }
+}
+
+function validateFormData(formData) {
+  return formData.every((field) => {
+    if (field.required === "true") {
+      return field.value.trim() !== "";
+    }
+    return true;
+  });
+}
+
+//give form submission data here
+function submitForm() {
+  console.log(
+    "%cform/main.js:284 Form Submitted",
+    "color:rgb(0, 255, 115);",
+    formData
+  );
+  clearFormData(formData);
+  return true;
+}
+function clearFormData(formData) {
+  return formData.map((field) => {
+    if (field.type !== "hidden") {
+      // Clear value in the object
+      field.value = "";
+
+      // Clear value in the actual input field if it exists
+      const inputElement = document.getElementById(field.id);
+      if (inputElement) {
+        inputElement.value = "";
+      }
+    }
+    return field;
+  });
 }
