@@ -72,8 +72,8 @@ function initStepperSlides() {
       crossFade: true, // Smooth fade transition
     },
     keyboard: {
-      enabled: true, // Enable keyboard navigation
-      onlyInViewport: true, // Navigation works only if Swiper is in viewport
+      enabled: false, // Enable keyboard navigation
+      onlyInViewport: false, // Navigation works only if Swiper is in viewport
     },
     pagination: {
       el: "[fynd-form='pagination']",
