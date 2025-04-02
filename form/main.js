@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initFormData();
   checkDuplicateIds();
   updateStepTitle();
+  checkMissingClones();
 
   document.querySelectorAll("[fynd-form='field']").forEach((input) => {
     input.addEventListener("change", function () {
@@ -300,6 +301,8 @@ function validateFormData(formData) {
 
 //give form submission data here
 function submitForm() {
+  fillWebflowForm();
+  document.getElementById("real-submit").click();
   console.log(
     "%cform/main.js:284 Form Submitted",
     "color:rgb(0, 255, 115);",
@@ -321,5 +324,35 @@ function clearFormData(formData) {
       }
     }
     return field;
+  });
+}
+
+function checkMissingClones() {
+  formData.forEach((field) => {
+    const cloneId = `${field.id}-clone`;
+    if (!document.getElementById(cloneId)) {
+      console.log(
+        `%cClone for '${field.id}' is missing!`,
+        "background: yellow; color: black; font-weight: bold; padding: 4px;"
+      );
+      field["webflow-id"] = "webflow id is unavailable";
+    } else {
+      console.log(`found input clone ${cloneId}`);
+      field["webflow-id"] = cloneId;
+    }
+  });
+}
+
+function fillWebflowForm() {
+  formData.forEach((field) => {
+    if (
+      field["webflow-id"] &&
+      field["webflow-id"] !== "webflow id is unavailable"
+    ) {
+      const element = document.getElementById(field["webflow-id"]);
+      if (element) {
+        element.value = field.value || "";
+      }
+    }
   });
 }

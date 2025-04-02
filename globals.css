@@ -392,6 +392,9 @@
   [data-bg="transparent"] {
     background: transparent;
   }
+  [data-bg="tea-green"]{
+    background: #E5F2C2;
+  }
 
   /* 
     Reverse apply background for Hero section in Mobile
@@ -499,4 +502,17 @@
   }
   .metric-rich-text strong {
       font-weight: 500;
+  }
+
+
+
+  /* new css got on 2 apr */
+  [data-bg="white"] {
+    background: white;
+  }
+  a.blog-details.w-inline-block {
+    display: flex;
+  }
+  .bento-card:hover .btn.global_card_btn {
+    opacity: 1;
   }
