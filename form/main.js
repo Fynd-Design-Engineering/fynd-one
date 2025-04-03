@@ -308,6 +308,7 @@ function submitForm() {
     "color:rgb(0, 255, 115);",
     formData
   );
+  footerFormRedirection();
   clearFormData(formData);
   return true;
 }
@@ -355,4 +356,52 @@ function fillWebflowForm() {
       }
     }
   });
+}
+
+function generateCalendlyURL() {
+  const baseURL = "https://calendly.com/d/ckd3-yjg-zkt/speak-to-a-fynd-expert";
+
+  // Extract name and email from formData
+  const nameField = formData.find((field) => field.id === "first-name");
+  const lastNameField = formData.find((field) => field.id === "last-name");
+  const emailField = formData.find((field) => field.id === "email");
+
+  if (!nameField || !lastNameField || !emailField) {
+    console.error("Required fields missing in formData");
+    return;
+  }
+
+  const fullName = `${nameField.value} ${lastNameField.value}`.trim();
+  const email = emailField.value;
+
+  // Construct the Calendly URL with parameters
+  const updatedURL = `${baseURL}?email=${encodeURIComponent(
+    email
+  )}&name=${encodeURIComponent(fullName)}`;
+
+  console.log("Updated Calendly URL:", updatedURL);
+  return updatedURL;
+}
+
+function getRedirectionURL() {
+  const redirectionURL = document
+    .querySelector("[fynd-form-redirect]")
+    .getAttribute("href");
+  if (redirectionURL && redirectionURL != "") {
+    console.log(redirectionURL);
+    return redirectionURL;
+  } else {
+    console.log("No redirection URLs found");
+  }
+}
+
+function footerFormRedirection() {
+  const calendlyURL = generateCalendlyURL();
+  if (calendlyURL) {
+    window.open(calendlyURL, "_blank");
+  }
+  const redirectionURL = getRedirectionURL();
+  if (redirectionURL) {
+    window.location.href = redirectionURL;
+  }
 }
