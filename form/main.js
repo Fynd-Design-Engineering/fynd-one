@@ -5,6 +5,7 @@ let isValid = false;
 let isButtonClicked = false;
 let totalSteps = 0;
 let prevStep = 0;
+let formConfigs = [];
 
 document.addEventListener("DOMContentLoaded", function () {
   getTotalSteps();
@@ -16,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
   checkDuplicateIds();
   updateStepTitle();
   checkMissingClones();
+  getFormType();
 
   document.querySelectorAll("[fynd-form='field']").forEach((input) => {
     input.addEventListener("change", function () {
@@ -26,14 +28,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  document
-    .querySelector("[fynd-form='button']")
-    .addEventListener("click", function () {
+  const button = document.querySelector("[fynd-form='button']");
+  if (button) {
+    button.addEventListener("click", function () {
       updateFormData();
       isValid = stepFormValidation(currentStep);
 
       if (!isValid) {
-        // If invalid, show error message
         console.log(
           "%cform/main.js:12 Validation failed. Please check your inputs.",
           "color: red; font-size: 16px; font-weight: bold;"
@@ -45,12 +46,14 @@ document.addEventListener("DOMContentLoaded", function () {
           "%cform/main.js:12 Validation passed. Proceeding to next step.",
           "color: green; font-size: 16px; font-weight: bold;"
         );
-        // If valid, proceed to the next step
         handleFormSubmit();
         checkStepper(currentStep);
         isButtonClicked = false;
       }
     });
+  } else {
+    console.warn("Element with [fynd-form='button'] not found.");
+  }
 });
 
 function checkStepper(step) {
@@ -92,7 +95,7 @@ function initStepperSlides() {
       },
     },
   });
-  console.log("%cform/main.js:37 currenstStep", "color: #007acc;", currentStep);
+  // console.log("%cform/main.js:37 currenstStep", "color: #007acc;", currentStep);
 }
 
 function initFormData() {
@@ -248,13 +251,16 @@ function getTotalSteps() {
 }
 
 function updateButtonText() {
-  if (currentStep === totalSteps) {
-    document.querySelector("[fynd-form='button-text']").innerHTML = "Submit";
+  const buttonTextElement = document.querySelector("[fynd-form='button-text']");
+
+  if (buttonTextElement) {
+    // Check if the element exists
+    buttonTextElement.innerHTML =
+      currentStep === totalSteps ? "Submit" : "Next";
   } else {
-    document.querySelector("[fynd-form='button-text']").innerHTML = "Next";
+    console.warn("Element with [fynd-form='button-text'] not found.");
   }
 }
-
 function updateStepTitle() {
   const titleElement = document.querySelector('[fynd-form-field="title"]');
   if (titleElement && totalSteps > 1) {
@@ -308,7 +314,8 @@ function submitForm() {
     "color:rgb(0, 255, 115);",
     formData
   );
-  footerFormRedirection();
+  // footerFormRedirection();
+  handlePostSubmit();
   clearFormData(formData);
   return true;
 }
@@ -395,6 +402,7 @@ function getRedirectionURL() {
   }
 }
 
+//this funciton will be called based on the form type
 function footerFormRedirection() {
   const calendlyURL = generateCalendlyURL();
   if (calendlyURL) {
@@ -403,5 +411,29 @@ function footerFormRedirection() {
   const redirectionURL = getRedirectionURL();
   if (redirectionURL) {
     window.location.href = redirectionURL;
+  }
+}
+
+function getFormType() {
+  document.querySelectorAll("[fynd-form-name]").forEach((formInfo) => {
+    const formName = formInfo.getAttribute("fynd-form-name");
+    const formFunction = formInfo.getAttribute("fynd-form-function");
+    const WebflowID = formInfo.getAttribute("fynd-form-id");
+
+    if (formName && formFunction) {
+      formConfigs.push({ formName, formFunction, WebflowID });
+    }
+  });
+  console.log(formConfigs);
+}
+
+function handlePostSubmit() {
+  const formConfig = formConfigs[0]; // Take the first object
+  if (typeof window !== "undefined" && formConfig.formFunction) {
+    try {
+      eval(formConfig.formFunction);
+    } catch (error) {
+      console.error("Error executing form function:", error);
+    }
   }
 }
