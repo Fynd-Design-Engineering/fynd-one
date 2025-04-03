@@ -395,6 +395,9 @@
   [data-bg="tea-green"]{
     background: #E5F2C2;
   }
+  [data-bg="violet"]{
+    background: #EEE8fc;
+  }
 
   /* 
     Reverse apply background for Hero section in Mobile
