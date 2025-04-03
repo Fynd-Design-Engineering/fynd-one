@@ -413,6 +413,14 @@ function footerFormRedirection() {
     window.location.href = redirectionURL;
   }
 }
+function redirectPage() {
+  const redirectURL = getRedirectionURL();
+  if (redirectURL) {
+    window.location.href = redirectURL;
+  } else {
+    console.log("%cform/main.js:422 redirect not found", "color: #007acc;");
+  }
+}
 
 function getFormType() {
   document.querySelectorAll("[fynd-form-name]").forEach((formInfo) => {
