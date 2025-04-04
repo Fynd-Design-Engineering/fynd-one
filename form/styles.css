@@ -7,7 +7,7 @@
 }
 
 [fynd-form="pagination"] {
-    position: relative;
+    position: relative !important;
     overflow: hidden;
     border-radius: 100px;
     background: #DEDEDE;
