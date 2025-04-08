@@ -130,7 +130,7 @@
   }
 
 
-  
+
 
   /* Section Padding Variations */
   [data-padding="big"] {
@@ -649,4 +649,16 @@
   #fc_frame {
     visibility: hidden;
     display: none;
+}
+
+/* new styles copied forom embed on april 8 */
+
+[data-bg="white"] {
+  background: white;
+}
+a.blog-details.w-inline-block {
+  display: flex;
+}
+.bento-card:hover .btn.global_card_btn {
+	opacity: 1;
 }
