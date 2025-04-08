@@ -26,7 +26,7 @@ const dropdownDimensions = [
   {
     name: "company",
     width: 262,
-    height: 420,
+    height: 486,
     isCurrent: false,
   },
 ];
