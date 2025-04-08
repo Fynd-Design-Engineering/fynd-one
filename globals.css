@@ -3,6 +3,135 @@
   --Secondary:"Inter Display",sans-serif;
   }
 
+
+  html, body {
+    -webkit-font-smoothing: antialiased; /* Smooth fonts on WebKit (Chrome, Safari) */
+    -moz-osx-font-smoothing: grayscale; /* Smooth fonts on macOS Firefox */
+    text-rendering: optimizeLegibility; /* Improve kerning and ligatures */
+    font-smooth: always; /* Smooth fonts on some browsers */
+  }
+
+
+  .w-background-video {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .footer_nav_lists_wrap li:last-child {
+    padding-right: 0;
+    margin-right: 0;
+    border-right: 0;
+  }
+  .scroll_visibility_hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scroll_visibility_hidden::-webkit-scrollbar {
+    display: none;
+  }
+  .w_100_per {
+    width: 100%;
+  }
+  .h_100_per {
+    height: 100%;
+  }
+  .video {
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* Ensures the video scales properly */
+    /*background-color: transparent; /* Removes the grey/white background */
+    display: block; /* Ensures consistent rendering */
+    /*-webkit-transform: translate3d(0, 0, 0); /* Fix rendering issues in Safari */
+  }
+  .fynd_section_banner_cta .btns_wrap {
+    justify-content: center;
+  }
+
+
+  [data-cursor] {
+    will-change: transform;
+  }
+  .global_card_btn:hover .global_card_btn_icon {
+    margin-right: -5px;
+  }
+  .swiper-button-next:after, .swiper-button-prev:after {
+    font-size: var(--sizes--14);
+    font-weight: var(--_typography---font-weight--bold);
+  }
+  .swiper-buttons .swiper-button {
+    position: static;
+    margin-top: 0;
+  }
+  w_100_per {
+    width: 100%;
+  }
+  h_100_per {
+    height: 100%;
+  }
+  .trusted_businesses {
+    transition-timing-function: linear !important;
+  }
+  .platform_card:nth-child(2n) .fynd_glow, .platform_card:nth-child(5n) .fynd_glow {
+    right: -10%;
+  }
+  .brands_carousal_wrap:hover [fc-marquee = wrapper],
+  .brands_carousal_wrap:focus-within [fc-marquee = wrapper] {
+    -webkit-animation-play-state: paused;
+    -moz-animation-play-state: paused;
+    -o-animation-play-state: paused;
+    animation-play-state: paused;
+  }
+  @media screen and (min-width: 992px) {
+    .trusted_businesses > * {
+      width: auto;
+      height: auto;
+    }
+  }
+  /*.fynd_loader {
+    display: flex;
+  }*/
+  .loader_line {
+    transition-delay: 0.3s
+  }
+  .loader_line.second {
+    transition-delay: 0.4s
+  }
+  .loader_line.third {
+    transition-delay: 0.5s
+  }
+  .loader_line.fourth {
+    transition-delay: 0.6s
+  }
+  .loader_line.fifth {
+    transition-delay: 0.9s
+  }
+  @keyframes loader {
+    0% {
+      transform: rotate(0deg);
+      -webkit-transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+      -webkit-transform: rotate(360deg);
+    }
+  }
+  @-webkit-keyframes loader {
+    0% {
+      transform: rotate(0deg);
+      -webkit-transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+      -webkit-transform: rotate(360deg);
+    }
+  }
+  .video_modal > div {
+    height: 100%;
+  }
+
+
+  
+
   /* Section Padding Variations */
   [data-padding="big"] {
     padding-top: 9rem;
@@ -516,3 +645,8 @@
   .bento-card:hover .btn.global_card_btn {
     opacity: 1;
   }
+
+  #fc_frame {
+    visibility: hidden;
+    display: none;
+}
