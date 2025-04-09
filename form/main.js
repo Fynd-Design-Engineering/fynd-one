@@ -277,12 +277,18 @@ function handleFormSubmit() {
         "%cform/main.js:12 Looking good. initiating form submission",
         "color: yellow; font-size: 16px; font-weight: bold;"
       );
-      let isSubmitted = submitForm();
+      submitForm();
+      let isSubmitted = true;
       if (isSubmitted) {
         document.querySelector('[fynd-form-state="normal"]').style.display =
           "none";
         document.querySelector('[fynd-form-state="success"]').style.display =
           "flex";
+        console.log(
+          "%cform/main.js:286 isSubmitted",
+          "color: #007acc;",
+          isSubmitted
+        );
       }
     } else {
       console.log("dont submit");
@@ -308,15 +314,20 @@ function validateFormData(formData) {
 //give form submission data here
 function submitForm() {
   fillWebflowForm();
-  document.getElementById("real-submit").click();
+  document.getElementById("real-submit").click(); //submitting webflow form
   console.log(
     "%cform/main.js:284 Form Submitted",
     "color:rgb(0, 255, 115);",
     formData
   );
-  // footerFormRedirection();
-  handlePostSubmit();
-  clearFormData(formData);
+
+  setTimeout(() => {
+    handlePostSubmit();
+    setTimeout(() => {
+      clearFormData(formData);
+    }, 1000);
+  }, 500);
+
   return true;
 }
 function clearFormData(formData) {
