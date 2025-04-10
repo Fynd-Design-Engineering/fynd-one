@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>International Telephone Input Example</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/css/intlTelInput.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>International Phone Number Input</h1>
+    
+    <div class="container">
+        <form id="phone-form">
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone">
+                <!-- Hidden input for country code -->
+                <input type="hidden" id="country-code" name="country-code">
+            </div>
+            
+            <button type="submit">Submit</button>
+            
+            <div id="result" class="result">
+                <p><strong>Phone Number:</strong> <span id="output-number"></span></p>
+                <p><strong>Country Code:</strong> <span id="output-country"></span></p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/intlTelInput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the plugin
+            var input = document.querySelector("#phone");
+            var countryCodeInput = document.querySelector("#country-code");
+            
+            // Initialize the intlTelInput with geolocation
+            var iti = window.intlTelInput(input, {
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js",
+                separateDialCode: true,
+                initialCountry: "auto",
+                geoIpLookup: function(callback) {
+                    // Use ipinfo.io to get the user's country code
+                    fetch('https://ipinfo.io/json')
+                        .then(response => response.json())
+                        .then(data => {
+                            callback(data.country.toLowerCase());
+                        })
+                        .catch(() => {
+                            // Default to US if geolocation fails
+                            callback('us');
+                        });
+                }
+            });
+            
+            // Update the hidden country code input when country changes
+            input.addEventListener('countrychange', function() {
+                var countryData = iti.getSelectedCountryData();
+                countryCodeInput.value = "+" + countryData.dialCode;
+                // Display in the result section for demonstration
+                document.getElementById('output-country').textContent = countryData.iso2.toUpperCase() + " (+" + countryData.dialCode + ")";
+            });
+            
+            // Trigger country change once on initialization to set initial values
+            setTimeout(function() {
+                var countryData = iti.getSelectedCountryData();
+                countryCodeInput.value = "+" + countryData.dialCode;
+                document.getElementById('output-country').textContent = countryData.iso2.toUpperCase() + " (+" + countryData.dialCode + ")";
+            }, 100);
+            
+            // Form submit handler
+            document.getElementById('phone-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get the phone number
+                var phoneNumber = input.value;
+                
+                // Display the phone number in the result section
+                document.getElementById('output-number').textContent = phoneNumber;
+                
+                // Log values to console for demonstration
+                console.log("Phone Number:", phoneNumber);
+                console.log("Country Code:", countryCodeInput.value);
+                
+                // You can submit the form data via AJAX here if needed
+                // or just use normal form submission after populating the hidden field
+            });
+        });
+    </script>
+</body>
+</html>

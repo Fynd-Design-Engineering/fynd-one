@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   removeSelectFieldDivs();
   updateButtonText();
   updatePageInfoField();
+  updateProduct();
+  captureCurrentTime();
   initStepperSlides();
   initFormData();
   checkDuplicateIds();
@@ -165,6 +167,23 @@ function updatePageInfoField() {
   inputField.name = "Page Info";
   inputField.type = "hidden";
   inputField.value = window.location.href;
+}
+function updateProduct() {
+  const inputField = document.querySelector('input[fynd-field-type="product"]');
+  if (!inputField) return;
+  inputField.name = "Product";
+  inputField.type = "hidden";
+  inputField.value = document.title;
+}
+function captureCurrentTime() {
+  const inputField = document.querySelector(
+    'input[fynd-field-type="submitted-at"]'
+  );
+  if (!inputField) return;
+  const now = new Date();
+  inputField.name = "Submitted At";
+  inputField.type = "hidden";
+  inputField.value = now.toString();
 }
 
 function removeSelectFieldDivs() {
@@ -363,6 +382,7 @@ function checkMissingClones() {
 }
 
 function fillWebflowForm() {
+  captureCurrentTime();
   formData.forEach((field) => {
     if (
       field["webflow-id"] &&
