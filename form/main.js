@@ -56,6 +56,15 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     console.warn("Element with [fynd-form='button'] not found.");
   }
+
+  // Disable tabbing on the form
+  const container = document.querySelector("[fynd-form-main]");
+  const focusableElements = container.querySelectorAll(
+    'input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  focusableElements.forEach((element) => {
+    element.setAttribute("tabindex", "-1");
+  });
 });
 
 function checkStepper(step) {
