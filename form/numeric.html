@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Number Input</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4d90fe;
+            box-shadow: 0 0 3px #4d90fe;
+        }
+    </style>
+</head>
+<body>
+    <h2>Contact Form</h2>
+    <form id="contactForm">
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number:</label>
+            <input 
+                type="tel" 
+                id="phoneNumber" 
+                name="phoneNumber" 
+                placeholder="Enter your phone number"
+                pattern="[0-9]*" 
+                inputmode="numeric"
+                maxlength="15"
+                required
+            >
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        const phoneInput = document.getElementById('phoneNumber');
+        
+        // Prevent non-numeric input
+        phoneInput.addEventListener('keypress', function(e) {
+            // Get the character code
+            const charCode = (e.which) ? e.which : e.keyCode;
+            
+            // If the character is not a number (0-9), prevent the input
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Additional check for paste events
+        phoneInput.addEventListener('paste', function(e) {
+            // Get pasted data
+            let pastedData = (e.clipboardData || window.clipboardData).getData('text');
+            
+            // Check if pasted data contains non-numeric characters
+            if (/[^0-9]/g.test(pastedData)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Clean up any non-numeric characters that might have gotten through
+        phoneInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        // Form submission handler
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Form submitted with phone number: ' + phoneInput.value);
+            // Here you would typically send the data to your server
+        });
+    </script>
+</body>
+</html> 

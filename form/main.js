@@ -56,6 +56,15 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     console.warn("Element with [fynd-form='button'] not found.");
   }
+
+  // Disable tabbing on the form
+  const container = document.querySelector("[fynd-form-main]");
+  const focusableElements = container.querySelectorAll(
+    'input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  focusableElements.forEach((element) => {
+    element.setAttribute("tabindex", "-1");
+  });
 });
 
 function checkStepper(step) {
@@ -257,6 +266,17 @@ function stepFormValidation(stepNumber) {
   emailFields.forEach((field) => {
     if (field.value.trim() && !isValidEmail(field.value.trim())) {
       showError(field, `Please enter a valid email address.`);
+      isValid = false;
+    }
+  });
+
+  // Validate phone fields
+  const phoneFields = fieldsToValidate.filter((field) => field.type === "tel");
+  phoneFields.forEach((field) => {
+    // Remove all non-digit characters and check if it's exactly 10 digits
+    const phoneDigits = field.value.replace(/\D/g, "");
+    if (field.value.trim() && phoneDigits.length !== 10) {
+      showError(field, `Phone number must be exactly 10 digits.`);
       isValid = false;
     }
   });
