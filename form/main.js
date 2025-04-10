@@ -261,6 +261,17 @@ function stepFormValidation(stepNumber) {
     }
   });
 
+  // Validate phone fields
+  const phoneFields = fieldsToValidate.filter((field) => field.type === "tel");
+  phoneFields.forEach((field) => {
+    // Remove all non-digit characters and check if it's exactly 10 digits
+    const phoneDigits = field.value.replace(/\D/g, "");
+    if (field.value.trim() && phoneDigits.length !== 10) {
+      showError(field, `Phone number must be exactly 10 digits.`);
+      isValid = false;
+    }
+  });
+
   return isValid; // Return true if no errors, false otherwise
 }
 
