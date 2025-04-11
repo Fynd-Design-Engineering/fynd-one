@@ -270,14 +270,21 @@ function stepFormValidation(stepNumber) {
     }
   });
 
-  // Validate phone fields
   const phoneFields = fieldsToValidate.filter((field) => field.type === "tel");
   phoneFields.forEach((field) => {
-    // Remove all non-digit characters and check if it's exactly 10 digits
-    const phoneDigits = field.value.replace(/\D/g, "");
-    if (field.value.trim() && phoneDigits.length !== 10) {
-      showError(field, `Phone number must be exactly 10 digits.`);
-      isValid = false;
+    // Validate phone using the global validatePhone function
+    const validationResult = window.validatePhone("phone");
+
+    // Check if valid
+    if (validationResult.isValid) {
+      // Phone is valid, mark as valid
+      field.isValid = true;
+      updatePhoneData(validationResult);
+    } else {
+      // Phone is invalid, mark as invalid
+      field.isValid = false;
+      // Show appropriate error message
+      showError(field, validationResult.message);
     }
   });
 
@@ -495,4 +502,11 @@ function handlePostSubmit() {
       console.error("Error executing form function:", error);
     }
   }
+}
+
+function updatePhoneData(validationObject) {
+  const realPhone = document.getElementById("phone-clone");
+  const realCountryCode = document.getElementById("country-code-clone");
+  realPhone.value = validationObject.phoneNumber;
+  realCountryCode.value = validationObject.countryCode;
 }
