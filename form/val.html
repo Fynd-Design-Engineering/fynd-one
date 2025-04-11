@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phone Number Validator Example</title>
+  
+  <!-- Include the intl-tel-input CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.min.css">
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .container {
+      margin-top: 20px;
+    }
+    
+    input {
+      padding: 8px;
+      width: 300px;
+      margin-bottom: 10px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+    
+    .valid {
+      color: green;
+      font-weight: bold;
+    }
+    
+    .invalid {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Phone Number Validator</h1>
+  
+  <div class="container">
+    <label for="phone">Enter phone number:</label><br>
+    <input type="tel" id="phone" placeholder="Enter phone number">
+    <button id="validate">Validate</button>
+  </div>
+  
+  <div class="container">
+    <h3>Validation Result:</h3>
+    <pre id="result">Results will appear here after validation</pre>
+  </div>
+  
+  <!-- Include the intl-tel-input JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+  
+  <!-- Phone Validator Script -->
+  <script>
+    // Phone Number Validator
+    const phoneValidator = (inputElement) => {
+      // Initialize the phone validator
+      const iti = window.intlTelInput(inputElement, {
+        initialCountry: "us",
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
+        separateDialCode: true
+      });
+
+      // Return an object with validation methods
+      return {
+        // Validate the phone number and return detailed information
+        validate: function() {
+          const result = {
+            isValid: false,
+            message: "Invalid number",
+            fullNumber: "",
+            countryCode: "",
+            phoneNumber: "",
+            countryIso: "",
+            countryName: "",
+            formatInternational: "",
+            formatNational: ""
+          };
+
+          // Check if input is empty
+          if (!inputElement.value.trim()) {
+            result.message = "Required";
+            return result;
+          }
+
+          // Validate the number
+          if (iti.isValidNumber()) {
+            const countryData = iti.getSelectedCountryData();
+            
+            result.isValid = true;
+            result.message = "Valid number";
+            result.fullNumber = iti.getNumber();
+            result.countryCode = countryData.dialCode;
+            result.phoneNumber = iti.getNumber().replace(`+${countryData.dialCode}`, "");
+            result.countryIso = countryData.iso2;
+            result.countryName = countryData.name;
+            result.formatInternational = iti.getNumber(intlTelInputUtils.numberFormat.INTERNATIONAL);
+            result.formatNational = iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL);
+          } else {
+            // Get specific error message
+            const errorMap = [
+              "Invalid number", 
+              "Invalid country code", 
+              "Too short", 
+              "Too long", 
+              "Invalid number"
+            ];
+            const errorCode = iti.getValidationError();
+            result.message = errorMap[errorCode] || "Invalid number";
+          }
+
+          return result;
+        },
+        
+        // Get the intlTelInput instance
+        getInstance: function() {
+          return iti;
+        },
+        
+        // Destroy the instance
+        destroy: function() {
+          return iti.destroy();
+        }
+      };
+    };
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      const phoneInput = document.getElementById('phone');
+      const validateButton = document.getElementById('validate');
+      const resultDisplay = document.getElementById('result');
+      
+      // Create validator instance
+      const validator = phoneValidator(phoneInput);
+      
+      // Add event listener to validate button
+      validateButton.addEventListener('click', function() {
+        const validationResult = validator.validate();
+        
+        // Format the result with color based on validity
+        resultDisplay.innerHTML = `<span class="${validationResult.isValid ? 'valid' : 'invalid'}">${validationResult.message}</span>\n\n` + 
+          JSON.stringify(validationResult, null, 2);
+      });
+      
+      // Also validate on Enter key
+      phoneInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          validateButton.click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

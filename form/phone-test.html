@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>International Telephone Input</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/css/intlTelInput.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/intlTelInput.min.js"></script>
+</head>
+<body>
+  <h1>International Telephone Input Example</h1>
+  
+  <div>
+    <input type="tel" id="phone" placeholder="Enter phone number">
+    <p id="location-status">Attempting to detect your location...</p>
+  </div>
+  
+  <div style="margin-top: 15px;">
+    <button id="validate-button">Validate Number</button>
+  </div>
+
+  <script>
+    // Global variables to access from console
+    window.phoneValidator = {};
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize variables
+      const input = document.querySelector("#phone");
+      const validateButton = document.querySelector("#validate-button");
+      const locationStatus = document.querySelector("#location-status");
+      
+      // Error messages for different error codes
+      const errorMap = [
+        "Invalid number", 
+        "Invalid country code", 
+        "Too short", 
+        "Too long", 
+        "Invalid number"
+      ];
+      
+      // Initialize global location data object
+      window.phoneValidator.locationData = {
+        city: '',
+        state: '',
+        country: '',
+        countryCode: ''
+      };
+      
+      // Function to get user's country code based on geolocation
+      function getUserCountry(callback) {
+        // First try HTML5 geolocation
+        if (navigator.geolocation) {
+          locationStatus.textContent = "Detecting your location...";
+          
+          navigator.geolocation.getCurrentPosition(
+            function(position) {
+              const latitude = position.coords.latitude;
+              const longitude = position.coords.longitude;
+              
+              // Use reverse geocoding to get country from coordinates
+              fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+                .then(response => response.json())
+                .then(data => {
+                  const countryCode = data.address.country_code;
+                  // Store the complete location data globally
+                  window.phoneValidator.locationData = {
+                    city: data.address.city || data.address.town || data.address.village || data.address.hamlet || '',
+                    state: data.address.state || data.address.province || data.address.county || '',
+                    country: data.address.country || '',
+                    countryCode: countryCode || ''
+                  };
+                  locationStatus.textContent = `Location detected: ${data.address.country}`;
+                  callback(countryCode);
+                })
+                .catch(error => {
+                  console.error("Reverse geocoding failed:", error);
+                  locationStatus.textContent = "Could not determine country from location. Defaulting to US.";
+                  callback("us"); // Default to US
+                });
+            },
+            function(error) {
+              console.error("Geolocation error:", error);
+              locationStatus.textContent = "Location access denied or unavailable. Defaulting to US.";
+              callback("us"); // Default to US if geolocation fails
+            }
+          );
+        } else {
+          // Geolocation not supported
+          locationStatus.textContent = "Geolocation not supported by your browser. Defaulting to US.";
+          callback("us");
+        }
+      }
+      
+      // Initialize intl-tel-input with geolocation
+      getUserCountry(function(countryCode) {
+        // Initialize intl-tel-input after we have the country code
+        const iti = window.intlTelInput(input, {
+          utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js",
+          separateDialCode: true,
+          initialCountry: countryCode || "us"
+        });
+        
+        // Store iti instance globally for console access
+        window.phoneValidator.iti = iti;
+        
+        // Simple validation function - only returns result, doesn't display inline
+        window.validatePhone = (phoneNumber) => {
+          // If a phone number is provided, use it; otherwise, use the input value
+          if (phoneNumber !== undefined) {
+            input.value = phoneNumber;
+            iti.setNumber(phoneNumber);
+          }
+          
+          const number = input.value.trim();
+          
+          if (number) {
+            if (iti.isValidNumber()) {
+              // Get the raw number without country code
+              const fullNumber = iti.getNumber();
+              const countryCode = iti.getSelectedCountryData().dialCode;
+              // Remove the "+" and country code from the full number to get just the phone number
+              const phoneNumberOnly = fullNumber.substring(1 + countryCode.length);
+              
+              // console.log("✓ Valid number:", fullNumber);
+              // console.log("Country:", iti.getSelectedCountryData().name);
+              // console.log("Country Code:", countryCode);
+              // console.log("Phone Number Only:", phoneNumberOnly);
+              
+              // Get location data if available
+              const locationData = window.phoneValidator.locationData || {
+                city: '',
+                state: '',
+                country: iti.getSelectedCountryData().name,
+                countryCode: iti.getSelectedCountryData().iso2
+              };
+              
+              return {
+                isValid: true,
+                message: "Valid number",
+                fullNumber: fullNumber,
+                countryCode: countryCode,
+                phoneNumber: phoneNumberOnly,
+                countryIso: iti.getSelectedCountryData().iso2,
+                countryName: iti.getSelectedCountryData().name,
+                formatInternational: iti.getNumber(intlTelInputUtils.numberFormat.INTERNATIONAL),
+                formatNational: iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL),
+                // Add location details
+                city: locationData.city,
+                state: locationData.state,
+                country: locationData.country
+              };
+            } else {
+              const errorCode = iti.getValidationError();
+              const errorText = errorMap[errorCode] || "Invalid number";
+              console.error("✗ Invalid number:", errorText);
+              return {
+                isValid: false,
+                message: errorText,
+                errorCode: errorCode
+              };
+            }
+          } else {
+            console.error("No phone number provided");
+            return {
+              isValid: false,
+              message: "No phone number provided"
+            };
+          }
+        };
+        
+        // For backward compatibility and to maintain your current code structure
+        window.validatePhoneNumber = window.validatePhone;
+        window.testPhoneNumber = window.validatePhone;
+        
+        // Get the phone number in various formats (globally accessible)
+        window.getPhoneNumber = (format) => {
+          if (!iti.isValidNumber()) return null;
+          
+          if (format === 'e164') {
+            return iti.getNumber(); // E.164 format by default
+          } else if (format === 'international') {
+            return iti.getNumber(intlTelInputUtils.numberFormat.INTERNATIONAL);
+          } else if (format === 'national') {
+            return iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL);
+          } else {
+            // Return all formats
+            return {
+              e164: iti.getNumber(),
+              international: iti.getNumber(intlTelInputUtils.numberFormat.INTERNATIONAL),
+              national: iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL)
+            };
+          }
+        };
+        
+        // Get the selected country data (globally accessible)
+        window.getSelectedCountryData = () => {
+          return iti.getSelectedCountryData();
+        };
+        
+        // Button click handler - uses the validation function and logs the result
+        validateButton.addEventListener("click", function() {
+          const result = window.validatePhone();
+          if (result.isValid) {
+            console.log(`Valid phone number: ${result.message}`);
+            console.log(result);
+          } else {
+            console.log(`Invalid phone number: ${result.message}`);
+            console.log(result);
+          }
+        });
+        
+        // Log instructions to console for testing
+        console.log('%c Phone Validator Ready!', 'color: green; font-weight: bold;');
+        console.log('%c Test with: window.validatePhone("+1 555 123 4567")', 'color: blue;');
+      });
+    });
+  </script>
+</body>
+</html>
