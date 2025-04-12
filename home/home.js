@@ -1,30 +1,3 @@
-//Media Swiper Slider Script
-var swiper = new Swiper("#mediaSwiper", {
-  slidesPerView: 1.28,
-  centeredSlides: true,
-  loop: true,
-  speed: 800,
-  mousewheel: {
-    forceToAxis: true,
-    sensitivity: 2,
-    releaseOnEdges: true,
-  },
-  navigation: {
-    nextEl: ".swiper-button-next",
-    prevEl: ".swiper-button-prev",
-  },
-  breakpoints: {
-    0: {
-      spaceBetween: 16,
-    },
-    768: {
-      spaceBetween: 24,
-    },
-  },
-});
-
-
-
 //Onclick Open Chatboat Script
 document.querySelector('.btn_prompt').addEventListener('click', function () {
   const textarea = this.parentElement.querySelector("textarea");
