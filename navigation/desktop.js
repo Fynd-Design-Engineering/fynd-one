@@ -3,6 +3,7 @@ let isFirstTime = true;
 let isAnimating = false;
 let isStartAgain = true;
 let currentAnimationTimeline = null;
+let navigationMode = "light";
 
 const dropdownDimensions = [
   {
@@ -54,11 +55,88 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabContents = document.querySelectorAll("[data-tab-content]");
 
     // Initialize functions
+    initNavigationMode();
     initTabs(tabLinks, tabContents);
     updateDropdownState(navItemsWrapper);
     initNavlinksHover(navItems);
   }
 });
+
+function initNavigationMode() {
+  navigationMode = document
+    .querySelector("[navigation-mode]")
+    .getAttribute("navigation-mode");
+  if (navigationMode === "light") {
+    console.log("Light mode is enabled 🔥");
+  } else if (navigationMode === "dark") {
+    styleDarkMode();
+    console.log("Dark mode is enabled");
+  } else {
+    console.log("Invalid navigation mode");
+  }
+}
+
+function styleDarkMode() {
+  // Find all elements with style-navigation attribute
+  const navElements = document.querySelectorAll("[style-navigation]");
+
+  // Loop through each element
+  navElements.forEach((element) => {
+    // Get the value of the style-navigation attribute
+    const styleValue = element.getAttribute("style-navigation");
+
+    // Apply styles based on the attribute value
+    switch (styleValue) {
+      case "navbg":
+        element.style.backgroundColor = "black";
+        break;
+      case "navlogo":
+        element.style.color = "white";
+        break;
+      case "navlink":
+        element.style.color = "white";
+        break;
+      case "button-primary":
+        element.style.backgroundColor = "white";
+        element.style.color = "black";
+        break;
+      case "button-secondary":
+        element.style.color = "white";
+        break;
+    }
+  });
+}
+
+function styleLightMode() {
+  // Find all elements with style-navigation attribute
+  const navElements = document.querySelectorAll("[style-navigation]");
+
+  // Loop through each element
+  navElements.forEach((element) => {
+    // Get the value of the style-navigation attribute
+    const styleValue = element.getAttribute("style-navigation");
+
+    // Apply styles based on the attribute value
+    switch (styleValue) {
+      case "navbg":
+        element.style.backgroundColor = "white";
+        break;
+      case "navlogo":
+        element.style.color = "black";
+        break;
+      case "navlink":
+        element.style.color = "black";
+        break;
+      case "button-primary":
+        element.style.backgroundColor = "black";
+        element.style.color = "white";
+        break;
+      case "button-secondary":
+        element.style.color = "black";
+        break;
+    }
+  });
+}
 
 function initTabs(tabLinks, tabContents) {
   if (tabLinks.length > 0) {
@@ -98,6 +176,11 @@ function updateDropdownState(navItemsWrapper) {
   navItemsWrapper.forEach((element) => {
     element.addEventListener("mouseleave", () => {
       isDropdownOpen = false;
+      if (navigationMode === "dark") {
+        styleDarkMode();
+      } else {
+        styleLightMode();
+      }
       // console.log("close dropdown");
       closeDropdownWrapper();
     });
@@ -111,6 +194,7 @@ function initNavlinksHover(navLinks) {
       if (!isDropdownOpen) {
         triggerDropdownOpen(this, index);
         isDropdownOpen = true;
+        styleLightMode();
       } else {
         triggerDropdownOpen(this, index);
       }
