@@ -8,7 +8,6 @@
  * updateCountryCode("input[type='tel']", "country-code");
  */
 
-
 function updateCountryCode(
   phoneInputSelector = "input[type='tel']",
   countryCodeInputId = "country-code"
@@ -107,8 +106,13 @@ function handleRedirection() {
 
 function handleCalendlyRedirection() {
   const newTabUrl = generateCalendlyURL();
+  const currentTabUrl = redirectionOptions.currentTab;
+
   if (newTabUrl) {
     window.open(newTabUrl, "_blank");
+  }
+  
+  if(currentTabUrl){
     window.location.href = redirectionOptions.currentTab;
   }
 }
@@ -118,8 +122,14 @@ function handleHubspotRedirection(){
 }
 
 function handleWebflowRedirection() {
-  const newTabUrl = redirectionOptions.currentTab ;
+  const newTabUrl = redirectionOptions.newTab ;
+  const currentTabUrl = redirectionOptions.currentTab;
+
   if (newTabUrl) {
     window.open(newTabUrl, "_blank");
+  }
+
+  if(currentTabUrl){
+    window.location.href = redirectionOptions.currentTab;
   }
 }
