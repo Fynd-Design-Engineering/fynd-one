@@ -8,7 +8,6 @@
  * updateCountryCode("input[type='tel']", "country-code");
  */
 
-let redirectionURL;
 
 function updateCountryCode(
   phoneInputSelector = "input[type='tel']",
@@ -47,7 +46,7 @@ function updatePageData() {
 }
 
 function generateCalendlyURL() {
-  const baseURL = redirectionOptions.URL;
+  const baseURL = redirectionOptions.newTab;
   const nameField = document.getElementById("first-name");
   const lastNameField = document.getElementById("last-name");
   const emailField = document.getElementById("work-email");
@@ -86,25 +85,41 @@ function handleFormSubmission() {
     } else {
       console.error("Form submission failed or success message not found");
     }
-  }, 500);
+  }, 1000);
 }
 
 function handleRedirection() {
   switch (redirectionOptions.type) {
     case "calendly":
-      redirectionURL = generateCalendlyURL();
+      handleCalendlyRedirection();
       break;
     case "hubspot":
-      redirectionURL = redirectionOptions.URL;
+      handleHubspotRedirection();
       break;
     case "webflow":
-      redirectionURL = redirectionOptions.URL;
+      handleWebflowRedirection();
       break;
     default:
       console.error("Invalid redirection type");
       return;
   }
-  if (redirectionURL) {
-    window.open(redirectionURL, "_blank");
+}
+
+function handleCalendlyRedirection() {
+  const newTabUrl = generateCalendlyURL();
+  if (newTabUrl) {
+    window.open(newTabUrl, "_blank");
+    window.location.href = redirectionOptions.currentTab;
+  }
+}
+
+function handleHubspotRedirection(){
+  console.log("hubspot calender")
+}
+
+function handleWebflowRedirection() {
+  const newTabUrl = redirectionOptions.currentTab ;
+  if (newTabUrl) {
+    window.open(newTabUrl, "_blank");
   }
 }
