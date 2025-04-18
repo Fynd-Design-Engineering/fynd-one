@@ -237,4 +237,38 @@ document.addEventListener("DOMContentLoaded", () => {
       video.load();
     });
   });
+
+
+
+  //Clone Items Script
+  document.addEventListener("DOMContentLoaded", () => {
+    function duplicateCarouselItems() {
+      document.querySelectorAll('.brands_carousal-2, .trusted_businesses').forEach(track => {
+        const duplicationBreakpointAttr = track.getAttribute('data-duplication');
+        // If no attribute exists — skip this track entirely
+        if (duplicationBreakpointAttr === null) return;
+        const duplicationBreakpoint = parseInt(duplicationBreakpointAttr);
+        // If the viewport is greater than or equal to the breakpoint — remove clones and skip
+        if (window.innerWidth >= duplicationBreakpoint) {
+          track.querySelectorAll('.clone').forEach(clone => clone.remove());
+          return;
+        }
+        // Check if it already has clones — prevent stacking duplicates
+        if (track.querySelector('.clone')) return;
+        // Duplicate original items only
+        const items = Array.from(track.children).filter(item => !item.classList.contains('clone'));
+        items.forEach(item => {
+          const clone = item.cloneNode(true);
+          clone.classList.add('clone');
+          track.appendChild(clone);
+        });
+      });
+    }
+    // Run on load
+    duplicateCarouselItems();
+    // Run on resize
+    window.addEventListener("resize", () => {
+      duplicateCarouselItems();
+    });
+  });
 });
