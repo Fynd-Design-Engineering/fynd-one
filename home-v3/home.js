@@ -1,28 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  //Glide Slider Script
-  document.querySelectorAll('.glide__slider').forEach((slider) => {
-    const config = {
-      animationDuration: 1500,
-      type: slider.getAttribute('type') || 'carousel',
-      focusAt: slider.getAttribute('alignment') || 'left',
-      gap: parseInt(slider.getAttribute('desktop-gap')) || 24,
-      perView: parseFloat(slider.getAttribute('desktop-items')) || 3,
-      breakpoints: {
-        768: {
-          gap: parseInt(slider.getAttribute('mobile-gap')) || 16,
-          perView: parseFloat(slider.getAttribute('mobile-items')) || 2,
-        },
-        992: {
-          gap: parseInt(slider.getAttribute('tablet-gap')) || 16,
-          perView: parseFloat(slider.getAttribute('tablet-items')) || 2,
-        },
-      },
-    };
-    new Glide(slider, config).mount();
-  });
-
-
-
   //Onclick Open Chatboat Script
   document.querySelector('.btn_prompt').addEventListener('click', function () {
     const textarea = this.parentElement.querySelector("textarea");
