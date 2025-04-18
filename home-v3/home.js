@@ -93,81 +93,96 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-  //Custom Video Script
+  // Custom Video Script (Optimized)
   const videoWrappers = document.querySelectorAll('div[src-webm][src-mp4]');
   const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   let windowHasLoaded = false;
-  let currentIsMobileViewport = window.innerWidth <= 767;
-  // Step 1: Set poster immediately
-  videoWrappers.forEach(wrapper => {
-    const video = wrapper.querySelector('video');
-    const isMobileViewport = window.innerWidth <= 767;
-    const poster = isMobileViewport
-      ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
-      : wrapper.getAttribute('video-poster');
-    if (video && poster) {
-      video.setAttribute('poster', poster);
-    }
-  });
-  // Step 2: After window fully loaded
-  window.addEventListener('load', () => {
-    windowHasLoaded = true;
+  let isMobileViewport = window.innerWidth <= 767;
+
+  // Function to set poster for each video
+  function setVideoPosters() {
     videoWrappers.forEach(wrapper => {
       const video = wrapper.querySelector('video');
-      if (!video || video.dataset.loaded === 'true' || video.dataset.observing === 'true') return;
-      const isMobileViewport = window.innerWidth <= 767;
-      const mp4Src = isMobileViewport
-        ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
-        : wrapper.getAttribute('src-mp4');
-      const webmSrc = isMobileViewport
-        ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
-        : wrapper.getAttribute('src-webm');
+      if (!video) return;
+      const poster = isMobileViewport
+        ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
+        : wrapper.getAttribute('video-poster');
+      if (poster) video.setAttribute('poster', poster);
+    });
+  }
+
+  // Function to load video sources dynamically
+  function loadVideo(wrapper, video, playBehavior, threshold, observer) {
+    if (video.dataset.loaded === 'true') return;
+    video.dataset.loaded = 'true';
+
+    const mp4Src = isMobileViewport
+      ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
+      : wrapper.getAttribute('src-mp4');
+
+    const webmSrc = isMobileViewport
+      ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
+      : wrapper.getAttribute('src-webm');
+
+    if (mp4Src) {
+      const mp4Source = document.createElement('source');
+      mp4Source.setAttribute('src', mp4Src);
+      mp4Source.setAttribute('type', 'video/mp4; codecs="hvc1"');
+      video.appendChild(mp4Source);
+    }
+
+    if (webmSrc) {
+      const webmSource = document.createElement('source');
+      webmSource.setAttribute('src', webmSrc);
+      webmSource.setAttribute('type', 'video/webm');
+      video.appendChild(webmSource);
+    }
+
+    video.load();
+
+    video.oncanplay = () => {
+      const shouldAutoPlay = isMobileDevice || playBehavior === 'autoplay' || video.hasAttribute('autoplay');
+      if (shouldAutoPlay) {
+        video.muted = true;
+        video.play().catch(() => { });
+      }
+    };
+
+    if (observer) observer.unobserve(wrapper);
+  }
+
+  // Set posters immediately
+  setVideoPosters();
+
+  // On full window load
+  window.addEventListener('load', () => {
+    windowHasLoaded = true;
+
+    videoWrappers.forEach(wrapper => {
+      const video = wrapper.querySelector('video');
+      if (!video || video.dataset.loaded === 'true') return;
+
       const playBehavior = wrapper.getAttribute('data-play');
       const threshold = parseFloat(wrapper.getAttribute('threshold') || '0');
-      const shouldAutoPlay =
-        isMobileDevice || playBehavior === 'autoplay' || video.hasAttribute('autoplay');
-      const loadVideo = () => {
-        if (video.dataset.loaded === 'true') return;
-        video.dataset.loaded = 'true';
-        if (mp4Src) {
-          const mp4Source = document.createElement('source');
-          mp4Source.src = mp4Src;
-          mp4Source.type = 'video/mp4; codecs="hvc1"';
-          video.appendChild(mp4Source);
-        }
-        if (webmSrc) {
-          const webmSource = document.createElement('source');
-          webmSource.src = webmSrc;
-          webmSource.type = 'video/webm';
-          video.appendChild(webmSource);
-        }
-        video.load();
-        video.oncanplay = () => {
-          if (shouldAutoPlay) {
-            video.muted = true;
-            video.play().catch(() => { });
-          }
-        };
-      };
-      // Special case for videos inside .media_card: delay
+
+      // Delay for media_card videos
       if (video.closest('.media_card')) {
         setTimeout(() => {
-          loadVideo();
+          loadVideo(wrapper, video, playBehavior);
         }, 1000);
       } else {
-        // Lazy load on intersection
+        // Lazy load with IntersectionObserver
         const observer = new IntersectionObserver((entries, obs) => {
           entries.forEach(entry => {
             if (entry.isIntersecting && windowHasLoaded) {
-              loadVideo();
-              obs.unobserve(wrapper);
+              loadVideo(wrapper, video, playBehavior, threshold, obs);
             }
           });
         }, { threshold });
         observer.observe(wrapper);
-        video.dataset.observing = 'true';
       }
-      // Optional: hover-based play for desktop
+
+      // Optional: hover-based play on desktop
       if (playBehavior === 'on-hover' && !isMobileDevice) {
         wrapper.addEventListener('mouseenter', () => {
           if (video.dataset.loaded === 'true') video.play();
@@ -178,46 +193,48 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-  // Step 3: Watch for resize and update sources & poster dynamically
+
+  // Handle viewport resize: update posters and reload videos
   window.addEventListener('resize', () => {
     const newIsMobile = window.innerWidth <= 767;
-    if (newIsMobile !== currentIsMobileViewport) {
-      currentIsMobileViewport = newIsMobile;
-      videoWrappers.forEach(wrapper => {
-        const video = wrapper.querySelector('video');
-        if (!video) return;
-        // Update poster
-        const newPoster = newIsMobile
-          ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
-          : wrapper.getAttribute('video-poster');
-        if (newPoster) {
-          video.setAttribute('poster', newPoster);
-        }
-        // Clear existing sources
-        while (video.firstChild) {
-          video.removeChild(video.firstChild);
-        }
-        // Add new sources
-        const newMp4Src = newIsMobile
-          ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
-          : wrapper.getAttribute('src-mp4');
-        const newWebmSrc = newIsMobile
-          ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
-          : wrapper.getAttribute('src-webm');
-        if (newMp4Src) {
-          const mp4Source = document.createElement('source');
-          mp4Source.src = newMp4Src;
-          mp4Source.type = 'video/mp4; codecs="hvc1"';
-          video.appendChild(mp4Source);
-        }
-        if (newWebmSrc) {
-          const webmSource = document.createElement('source');
-          webmSource.src = newWebmSrc;
-          webmSource.type = 'video/webm';
-          video.appendChild(webmSource);
-        }
-        video.load();
-      });
-    }
+    if (newIsMobile === isMobileViewport) return; // No viewport change — skip
+    isMobileViewport = newIsMobile;
+
+    setVideoPosters();
+
+    videoWrappers.forEach(wrapper => {
+      const video = wrapper.querySelector('video');
+      if (!video) return;
+
+      // Clear existing sources
+      while (video.firstChild) {
+        video.removeChild(video.firstChild);
+      }
+
+      // Add new sources
+      const mp4Src = isMobileViewport
+        ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
+        : wrapper.getAttribute('src-mp4');
+
+      const webmSrc = isMobileViewport
+        ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
+        : wrapper.getAttribute('src-webm');
+
+      if (mp4Src) {
+        const mp4Source = document.createElement('source');
+        mp4Source.setAttribute('src', mp4Src);
+        mp4Source.setAttribute('type', 'video/mp4; codecs="hvc1"');
+        video.appendChild(mp4Source);
+      }
+
+      if (webmSrc) {
+        const webmSource = document.createElement('source');
+        webmSource.setAttribute('src', webmSrc);
+        webmSource.setAttribute('type', 'video/webm');
+        video.appendChild(webmSource);
+      }
+
+      video.load();
+    });
   });
 });
