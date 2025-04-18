@@ -232,18 +232,11 @@
 }
 
 @media (prefers-reduced-motion) {
-  .brands_carousal_wrap [fc-marquee=wrapper] {
+  [class*="brands_carousal_wrap"] > * {
     -webkit-animation-play-state: paused;
     -moz-animation-play-state: paused;
     -o-animation-play-state: paused;
     animation-play-state: paused;
-  }
-}
-
-@media screen and (min-width: 992px) {
-  .trusted_businesses>* {
-    width: auto;
-    height: auto;
   }
 }
 
