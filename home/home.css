@@ -1,7 +1,7 @@
 [data-cursor] {
   will-change: transform;
 }
-.swiper-slide-active .media_overlay {
+.glide__slide--active .media_overlay {
   opacity: 0;
 }
 .btn_prompt svg > g > ellipse + g + g path {
