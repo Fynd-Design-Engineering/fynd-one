@@ -99,18 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let windowHasLoaded = false;
   let isMobileViewport = window.innerWidth <= 767;
 
-  // Function to set poster for each video
-  function setVideoPosters() {
-    videoWrappers.forEach(wrapper => {
-      const video = wrapper.querySelector('video');
-      if (!video) return;
-      const poster = isMobileViewport
-        ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
-        : wrapper.getAttribute('video-poster');
-      if (poster) video.setAttribute('poster', poster);
-    });
-  }
-
   // Function to load video sources dynamically
   function loadVideo(wrapper, video, playBehavior, threshold, observer) {
     if (video.dataset.loaded === 'true') return;
@@ -150,9 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (observer) observer.unobserve(wrapper);
   }
-
-  // Set posters immediately
-  setVideoPosters();
 
   // On full window load
   window.addEventListener('load', () => {
@@ -194,24 +179,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Handle viewport resize: update posters and reload videos
+  // Handle viewport resize: reload video sources
   window.addEventListener('resize', () => {
     const newIsMobile = window.innerWidth <= 767;
-    if (newIsMobile === isMobileViewport) return; // No viewport change — skip
+    if (newIsMobile === isMobileViewport) return;
     isMobileViewport = newIsMobile;
-
-    setVideoPosters();
 
     videoWrappers.forEach(wrapper => {
       const video = wrapper.querySelector('video');
       if (!video) return;
 
-      // Clear existing sources
       while (video.firstChild) {
         video.removeChild(video.firstChild);
       }
 
-      // Add new sources
       const mp4Src = isMobileViewport
         ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
         : wrapper.getAttribute('src-mp4');
