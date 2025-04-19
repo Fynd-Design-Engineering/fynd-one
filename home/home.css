@@ -8,6 +8,17 @@
   border-right: 0;
 }
 
+.video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  /* Ensures the video scales properly */
+  /*background-color: transparent; /* Removes the grey/white background */
+  display: block;
+  /* Ensures consistent rendering */
+  /*-webkit-transform: translate3d(0, 0, 0); /* Fix rendering issues in Safari */
+}
+
 .scroll_visibility_hidden {
   -ms-overflow-style: none;
   scrollbar-width: none;
