@@ -124,6 +124,13 @@ document.addEventListener("DOMContentLoaded", () => {
       ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
       : wrapper.getAttribute('src-webm');
 
+    // Set poster now when video is about to load
+    const poster = isMobileViewport
+      ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
+      : wrapper.getAttribute('video-poster');
+
+    if (poster) video.setAttribute('poster', poster);
+
     if (mp4Src) {
       const mp4Source = document.createElement('source');
       mp4Source.setAttribute('src', mp4Src);
