@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
       : wrapper.getAttribute('src-webm');
 
-    // Set poster now when video is about to load
+    // ⬇️ Lazy-load poster here, not before
     const poster = isMobileViewport
       ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
       : wrapper.getAttribute('video-poster');
