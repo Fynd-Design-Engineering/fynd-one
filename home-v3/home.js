@@ -92,6 +92,154 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+  // Custom Video Script (Optimized)
+  const videoWrappers = document.querySelectorAll('div[src-webm][src-mp4]');
+  const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  let windowHasLoaded = false;
+  let isMobileViewport = window.innerWidth <= 767;
+
+  // Function to set poster for each video
+  function setVideoPosters() {
+    videoWrappers.forEach(wrapper => {
+      const video = wrapper.querySelector('video');
+      if (!video) return;
+      const poster = isMobileViewport
+        ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
+        : wrapper.getAttribute('video-poster');
+      if (poster) video.setAttribute('poster', poster);
+    });
+  }
+
+  // Function to load video sources dynamically
+  function loadVideo(wrapper, video, playBehavior, threshold, observer) {
+    if (video.dataset.loaded === 'true') return;
+    video.dataset.loaded = 'true';
+
+    const mp4Src = isMobileViewport
+      ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
+      : wrapper.getAttribute('src-mp4');
+
+    const webmSrc = isMobileViewport
+      ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
+      : wrapper.getAttribute('src-webm');
+
+    if (mp4Src) {
+      const mp4Source = document.createElement('source');
+      mp4Source.setAttribute('src', mp4Src);
+      mp4Source.setAttribute('type', 'video/mp4; codecs="hvc1"');
+      video.appendChild(mp4Source);
+    }
+
+    if (webmSrc) {
+      const webmSource = document.createElement('source');
+      webmSource.setAttribute('src', webmSrc);
+      webmSource.setAttribute('type', 'video/webm');
+      video.appendChild(webmSource);
+    }
+
+    video.load();
+
+    video.oncanplay = () => {
+      const shouldAutoPlay = isMobileDevice || playBehavior === 'autoplay' || video.hasAttribute('autoplay');
+      if (shouldAutoPlay) {
+        video.muted = true;
+        video.play().catch(() => { });
+      }
+    };
+
+    if (observer) observer.unobserve(wrapper);
+  }
+
+  // Set posters immediately
+  setVideoPosters();
+
+  // On full window load
+  window.addEventListener('load', () => {
+    windowHasLoaded = true;
+
+    videoWrappers.forEach(wrapper => {
+      const video = wrapper.querySelector('video');
+      if (!video || video.dataset.loaded === 'true') return;
+
+      const playBehavior = wrapper.getAttribute('data-play');
+      const threshold = parseFloat(wrapper.getAttribute('threshold') || '0');
+
+      // Delay for media_card videos
+      if (video.closest('.media_card')) {
+        setTimeout(() => {
+          loadVideo(wrapper, video, playBehavior);
+        }, 1000);
+      } else {
+        // Lazy load with IntersectionObserver
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && windowHasLoaded) {
+              loadVideo(wrapper, video, playBehavior, threshold, obs);
+            }
+          });
+        }, { threshold });
+        observer.observe(wrapper);
+      }
+
+      // Optional: hover-based play on desktop
+      if (playBehavior === 'on-hover' && !isMobileDevice) {
+        wrapper.addEventListener('mouseenter', () => {
+          if (video.dataset.loaded === 'true') video.play();
+        });
+        wrapper.addEventListener('mouseleave', () => {
+          if (video.dataset.loaded === 'true') video.pause();
+        });
+      }
+    });
+  });
+
+  // Handle viewport resize: update posters and reload videos
+  window.addEventListener('resize', () => {
+    const newIsMobile = window.innerWidth <= 767;
+    if (newIsMobile === isMobileViewport) return; // No viewport change — skip
+    isMobileViewport = newIsMobile;
+
+    setVideoPosters();
+
+    videoWrappers.forEach(wrapper => {
+      const video = wrapper.querySelector('video');
+      if (!video) return;
+
+      // Clear existing sources
+      while (video.firstChild) {
+        video.removeChild(video.firstChild);
+      }
+
+      // Add new sources
+      const mp4Src = isMobileViewport
+        ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
+        : wrapper.getAttribute('src-mp4');
+
+      const webmSrc = isMobileViewport
+        ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
+        : wrapper.getAttribute('src-webm');
+
+      if (mp4Src) {
+        const mp4Source = document.createElement('source');
+        mp4Source.setAttribute('src', mp4Src);
+        mp4Source.setAttribute('type', 'video/mp4; codecs="hvc1"');
+        video.appendChild(mp4Source);
+      }
+
+      if (webmSrc) {
+        const webmSource = document.createElement('source');
+        webmSource.setAttribute('src', webmSrc);
+        webmSource.setAttribute('type', 'video/webm');
+        video.appendChild(webmSource);
+      }
+
+      video.load();
+    });
+  });
+
+
+
   //Clone Items Script
   function duplicateCarouselItems() {
     document.querySelectorAll('.brands_carousal-2, .trusted_businesses').forEach(track => {
