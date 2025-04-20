@@ -34,8 +34,8 @@ body {
 }
 
 [platform-class-variable~="--_primitives---green--green-20"]:hover {
-  background: var(--_primitives---peach--peach-20);
-  border-color: var(--_primitives---peach--peach-20);
+  background: var(--_primitives---green--green-20);
+  border-color: var(--_primitives---green--green-20);
 }
 
 [platform-class-variable~="--_primitives---neutral--neutral-30"]:hover {
