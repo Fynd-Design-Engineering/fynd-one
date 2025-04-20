@@ -20,6 +20,92 @@ body {
   border-right: 0;
 }
 
+[badge-class-variable~="--_color-palette---background--background-light"] {
+  background: var(--_color-palette---background--background-light);
+}
+
+[badge-circle-class-variable~="--_color-palette---peach--peach-primary"] {
+  background-color: var(--_color-palette---peach--peach-primary);
+}
+
+[platform-class-variable~="--_primitives---peach--peach-20"]:hover {
+  background: var(--_primitives---peach--peach-20);
+  border-color: var(--_primitives---peach--peach-20);
+}
+
+[platform-class-variable~="--_primitives---green--green-20"]:hover {
+  background: var(--_primitives---peach--peach-20);
+  border-color: var(--_primitives---peach--peach-20);
+}
+
+[platform-class-variable~="--_primitives---neutral--neutral-30"]:hover {
+  background: var(--_primitives---neutral--neutral-30);
+  border-color: var(--_primitives---neutral--neutral-30);
+}
+
+[platform-class-variable~="--_primitives---gold--gold-20"]:hover {
+  background: var(--_primitives---gold--gold-20);
+  border-color: var(--_primitives---gold--gold-20);
+}
+
+[platform-class-variable~="--_primitives---lavender--lavender-20"]:hover {
+  background: var(--_primitives---lavender--lavender-20);
+  border-color: var(--_primitives---lavender--lavender-20);
+}
+
+[platform-class-variable~="--_primitives---red--red-20"]:hover {
+  background: var(--_primitives---red--red-20);
+  border-color: var(--_primitives---red--red-20);
+}
+
+[title-class-variable~="--_primitives---neutral--neutral-100"] {
+  color: var(--_primitives---neutral--neutral-100);
+}
+
+[title-class-variable~="--_primitives---peach--peach-90"] {
+  color: var(--_primitives---peach--peach-90);
+}
+
+[badge-circle-class-variable~="--_color-palette---green--green-primary"] {
+  background-color: var(--_color-palette---green--green-primary);
+}
+
+[badge-class-variable~="#D8F7E6"] {
+  background-color: #D8F7E6;
+}
+
+[title-class-variable~="--_color-palette---green--green-text"] {
+  color: var(--_color-palette---green--green-text);
+}
+
+[badge-class-variable~="rgba(255,255,255,0.2)"] {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+[title-class-variable~="--_primitives---neutral--neutral-0"] {
+  color: var(--_primitives---neutral--neutral-0);
+}
+
+[badge-class-variable~="--_color-palette---background--background-dark"] {
+  background-color: var(--_color-palette---background--background-dark);
+}
+
+[paragraph-class-variable~="--text--subtext-inverse"] {
+  color: var(--text--subtext-inverse);
+}
+
+[badge-circle-class-variable~="--_primitives---neutral--neutral-40"] {
+  background-color: var(--_primitives---neutral--neutral-40);
+}
+
+[title-class-variable~="--_typography---font-size--body-xl"] {
+  font-size: var(--_typography---font-size--body-xl);
+}
+
+[card-class-variable~="--_color-palette---background--background-darkest"] {
+  background-color: var(--_color-palette---background--background-darkest);
+}
+
 .video {
   width: 100%;
   height: auto;
