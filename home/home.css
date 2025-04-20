@@ -1,3 +1,15 @@
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  /* Smooth fonts on WebKit (Chrome, Safari) */
+  -moz-osx-font-smoothing: grayscale;
+  /* Smooth fonts on macOS Firefox */
+  text-rendering: optimizeLegibility;
+  /* Improve kerning and ligatures */
+  font-smooth: always;
+  /* Smooth fonts on some browsers */
+}
+
 [data-cursor] {
   will-change: transform;
 }
