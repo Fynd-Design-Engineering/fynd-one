@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!video || video.dataset.loaded === 'true') return;
 
       const playBehavior = wrapper.getAttribute('data-play');
-      const threshold = parseFloat(wrapper.getAttribute('threshold') || '200');
+      const threshold = parseFloat(wrapper.getAttribute('threshold') || '0');
 
       // Delay for media_card videos
       if (video.closest('.media_card')) {
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
               loadVideo(wrapper, video, playBehavior, threshold, obs);
             }
           });
-        }, { threshold });
+        }, { threshold, rootMargin: '800px' });
         observer.observe(wrapper);
       }
 
