@@ -224,7 +224,7 @@ window.addEventListener('load', () => {
             obs.unobserve(wrapper);
           }
         });
-      }, { threshold });
+      }, { threshold, rootMargin: '800px' });
       observer.observe(wrapper);
       video.dataset.observing = 'true';
     }

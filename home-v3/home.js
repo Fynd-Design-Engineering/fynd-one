@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
               loadVideo(wrapper, video, playBehavior, threshold, obs);
             }
           });
-        }, { threshold }, 200);
+        }, { threshold, rootMargin: '800px' });
         observer.observe(wrapper);
       }
 
