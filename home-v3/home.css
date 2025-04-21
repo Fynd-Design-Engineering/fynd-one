@@ -169,14 +169,6 @@ body {
   margin-top: 0;
 }
 
-.w_100_per {
-  width: 100%;
-}
-
-.h_100_per {
-  height: 100%;
-}
-
 .trusted_businesses {
   transition-timing-function: linear !important;
 }
