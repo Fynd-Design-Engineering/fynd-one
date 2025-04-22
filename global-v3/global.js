@@ -72,24 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-  //Add Classes Through A Custom Attribute Script
-  document.querySelectorAll('[data-class]').forEach((element) => {
-    // Get the value of the custom data-class attribute
-    const dataClass = element.getAttribute('data-class');
-    if (dataClass) {
-      // Get the existing class attribute value
-      const existingClass = element.getAttribute('class') || '';
-      // Merge the data-class values with existing class values
-      const updatedClass = `${existingClass} ${dataClass}`.trim();
-      // Update the class attribute
-      element.setAttribute('class', updatedClass);
-      // Optionally, remove the data-class attribute if no longer needed
-      element.removeAttribute('data-class');
-    }
-  });
-
-
-
   //Footer Navigation Accordion Script
   const togglers = document.querySelectorAll(".footer_nav_toggler");
   const resetStylesOnResize = () => {
