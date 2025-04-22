@@ -323,7 +323,7 @@ function setupSelectPlaceholders() {
         setTimeout(function() {
           console.log("Executing delayed redirection");
           handleFormSubmission();
-        }, 1500);
+        }, 3000);
         
         // Let the form submit normally
         return true;
