@@ -625,11 +625,11 @@ body {
   }
 
   div div.bento-card_text {
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 
   div p.bento-card_subtext {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 }
 
