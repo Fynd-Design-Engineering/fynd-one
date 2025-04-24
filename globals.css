@@ -490,18 +490,92 @@ body {
 }
 
 /* 
-    Reverse apply background for Hero section in Mobile
-    Remove background from Hero, apply to image only
-  */
+Reverse apply background for Hero section in Mobile
+Remove background from Hero, apply to image only
+*/
+
+
+@media (min-width: 1280px) {
+  [data-glow="star"]::before {
+    left: 30vw;
+    height: 1370px;
+  }
+}
+
 @media (min-width: 768px) {
   .hero--right-image-wrap[data-bg] {
     background: transparent;
+  }
+
+  [data-glow="star"]::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    background-image: url('https://cdn.prod.website-files.com/67a9c8e5f2c74ac8c2c9b88b/67b44aabaca043782cd38488_background-shimmer.gif');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    mix-blend-mode: screen;
+    height: 1200px;
+    width: 200vw;
+    left: 10vw;
+    top: -50%;
+  }
+
+  [data-glow="star"]::after {
+    content: '';
+    z-index: 0;
+    opacity: .5;
+    mix-blend-mode: multiply;
+    object-fit: cover;
+    /*background-image: url('https://cdn.prod.website-files.com/67a9c8e5f2c74ac8c2c9b88b/67e014ba0be011b4a7adb7a3_grain-hero.avif');*/
+    background-position: 0 0;
+    background-repeat: repeat;
+    background-size: contain;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0%;
   }
 }
 
 @media (max-width: 767px) {
   .section_hero-50-50[data-bg] {
     background: transparent;
+  }
+
+  [data-glow="star"] .hero--right-image-wrap::before {
+    content: "";
+    position: absolute;
+    inset: -35% 0% 0% auto;
+    z-index: 1;
+    background-image: url('https://cdn.prod.website-files.com/67a9c8e5f2c74ac8c2c9b88b/67b44aabaca043782cd38488_background-shimmer.gif');
+    background-size: cover;
+    background-position: -120px 0;
+    opacity: 0.5;
+    mix-blend-mode: screen;
+    height: 165%;
+    width: 100%;
+  }
+
+  [data-glow="star"] .hero--right-image-wrap::after {
+    content: '';
+    z-index: 0;
+    opacity: .5;
+    mix-blend-mode: multiply;
+    object-fit: cover;
+    background-image: url('https://cdn.prod.website-files.com/67a9c8e5f2c74ac8c2c9b88b/67e014ba0be011b4a7adb7a3_grain-hero.avif');
+    background-position: 0 0;
+    background-repeat: repeat;
+    background-size: contain;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0%;
+  }
+
+  .section_hero-50-50[data-bg-mobile="True"] {
+    background: #0e0e0e;
   }
 }
 
@@ -617,8 +691,8 @@ body {
 }
 
 /* BENTO CARD WIDTH
-    [data-width="45%"] { width: 48%; }
-    [data-width="100%"] { width: 100%; } */
+[data-width="45%"] { width: 48%; }
+[data-width="100%"] { width: 100%; } */
 @media screen and (max-width: 767px) {
   *[data-height] {
     height: 15.62rem;
