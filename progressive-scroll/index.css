@@ -13,6 +13,7 @@
  }
  [fynd-sticky-source]{
      height: 80vh;
+     width: 100%;
      position: absolute;
      top: 0px;
      opacity: 0;
@@ -29,6 +30,9 @@
  [fynd-scroll-column]{
      padding-left: 0rem;
      padding-right: 0rem;
+ }
+ .progressive-scroll-image {
+    object-fit: cover;
  }
 
  /* disable everything from tablet and below */
