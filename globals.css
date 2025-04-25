@@ -476,7 +476,7 @@ body {
   background: #F8F8F9;
 }
 
-[data-bg="dark"] {
+[data-bg="dark"], .card_badge[data-bg="dark"] {
   background: #0E0E0E;
   color: #FFFFFF;
 }
