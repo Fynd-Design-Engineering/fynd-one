@@ -777,7 +777,4 @@ a.blog-details.w-inline-block {
     font-size: 1.125rem;
     line-height: 140%;
   }
-  [data-text-style="body-l-regular"]{
-    line-height: 140%;
-  }
 }
