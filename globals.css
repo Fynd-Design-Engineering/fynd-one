@@ -771,7 +771,7 @@ a.blog-details.w-inline-block {
     line-height: 115%;
   }
   [data-text-style="heading-l"]{
-    line-height: 140%;
+    line-height: 135%;
   }
   [data-text-style="body-xl-regular"]{
     font-size: 1rem;
@@ -780,5 +780,5 @@ a.blog-details.w-inline-block {
     font-size: 1.125rem;
     line-height: 140%;
   }
-  
+
 }
