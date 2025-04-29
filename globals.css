@@ -760,3 +760,24 @@ a.blog-details.w-inline-block {
 .bento-card:hover .btn.global_card_btn {
   opacity: 1;
 }
+
+
+/* changes on tue 29 */
+@media (width <= 767px) {
+  [data-text-style="body-l-regular"]{
+    line-height: 145%;
+  }
+  [data-text-style="heading-xl"]{
+    line-height: 115%;
+  }
+  [data-text-style="body-xl-regular"]{
+    font-size: 1rem;
+  }
+  [data-text-style="heading-s"]{
+    font-size: 1.125rem;
+    line-height: 140%;
+  }
+  [data-text-style="body-l-regular"]{
+    line-height: 140%;
+  }
+}
