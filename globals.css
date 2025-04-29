@@ -770,6 +770,9 @@ a.blog-details.w-inline-block {
   [data-text-style="heading-xl"]{
     line-height: 115%;
   }
+  [data-text-style="heading-l"]{
+    line-height: 140%;
+  }
   [data-text-style="body-xl-regular"]{
     font-size: 1rem;
   }
