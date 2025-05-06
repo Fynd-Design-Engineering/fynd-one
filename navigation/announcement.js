@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
       pauseOnMouseEnter: true,
     },
     loop: true,
-    speed: 800,
+    speed: 1000,
     pagination: {
       el: ".announcement-pagination",
       clickable: true,

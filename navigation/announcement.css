@@ -1,5 +1,5 @@
 .announcement-pagination.swiper-pagination-clickable.swiper-pagination-bullets.swiper-pagination-horizontal {
-    display: flex;
+    display: none;
     flex-direction: column;
     height: 100%;
     bottom: 0px;
