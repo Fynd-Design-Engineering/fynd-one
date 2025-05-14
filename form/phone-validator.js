@@ -35,7 +35,13 @@
         utilsScript:
           "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js",
         separateDialCode: true,
-        initialCountry: "in", // India as default
+        initialCountry: "auto", // India as default
+        geoIpLookup: callback => {
+          fetch("https://ipapi.co/json")
+            .then(res => res.json())
+            .then(data => callback(data.country_code))
+            .catch(() => callback("us"));
+        },
         nationalMode: false,
         validationNumberTypes: ["FIXED_LINE_OR_MOBILE", "MOBILE", "FIXED_LINE"], // Accept all phone types
         allowDropdown: true, // Allow users to select country from dropdown
