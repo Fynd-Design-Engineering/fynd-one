@@ -233,7 +233,7 @@ body {
   font-size: 1.125rem;
   /* 18px */
   font-weight: 400;
-  line-height: 135%;
+  line-height: 145%;
 }
 
 [data-text-style="body-l-medium"] {
@@ -312,10 +312,13 @@ body {
   [data-text-style="body-m-medium"],
   [data-text-style="body-l-regular"],
   [data-text-style="body-l-medium"],
-  [data-text-style="body-xl-regular"],
-  [data-text-style="body-xl-medium"] {
+  [data-text-style="body-xl-regular"] {
     font-size: 1rem;
     /* 16px */
+  }
+
+  [data-text-style="body-xl-medium"] {
+    font-size: 1.2rem;
   }
 }
 
@@ -476,7 +479,8 @@ body {
   background: #F8F8F9;
 }
 
-[data-bg="dark"], .card_badge[data-bg="dark"] {
+[data-bg="dark"],
+.card_badge[data-bg="dark"] {
   background: #0E0E0E;
   color: #FFFFFF;
 }
@@ -763,22 +767,86 @@ a.blog-details.w-inline-block {
 
 
 /* changes on tue 29 */
-@media (width <= 767px) {
-  [data-text-style="body-l-regular"]{
+@media (width <=767px) {
+  [data-text-style="body-l-regular"] {
     line-height: 145%;
   }
-  [data-text-style="heading-xl"]{
+
+  [data-text-style="heading-xl"] {
     line-height: 115%;
   }
-  [data-text-style="heading-l"]{
+
+  [data-text-style="heading-l"] {
     line-height: 135%;
   }
-  [data-text-style="body-xl-regular"]{
+
+  [data-text-style="body-xl-regular"] {
     font-size: 1rem;
   }
-  [data-text-style="heading-s"]{
+
+  [data-text-style="heading-s"] {
     font-size: 1.125rem;
     line-height: 140%;
   }
 
+}
+
+[card-bg="dark"] {
+  background: #1A1A1A;
+}
+
+[circle-bg="dark"] {
+  background: #333333;
+}
+
+[circle-bg="light"] {
+  background: #1A1A1A;
+}
+
+[bottom-line-border="dark"] {
+  border-color: #333333;
+}
+
+[bottom-line-border="light"] {
+  border-color: #1A1A1A;
+}
+
+.accordian-richtext[data-text-color]:not([data-text-color=""])>* {
+  color: inherit;
+}
+
+@media (max-width: 767px) {
+  [data-glow="star"] .hero--right-image-wrap::before {
+    top: 0%;
+    height: 100%;
+  }
+}
+
+.iti {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+h1 a,
+h2 a,
+h3 a,
+h6 a {
+  height: var(--sizes--40);
+  padding: 0px var(--_spacing---24);
+  grid-column-gap: var(--_spacing---8);
+  grid-row-gap: var(--_spacing---8);
+  border-radius: var(--_border-radius---radius-32);
+  color: var(--_color-palette---button--primary--button-text-default) !important;
+  font-size: var(--sizes--16);
+  line-height: var(--_typography---line-height--160);
+  font-weight: var(--_typography---font-weight--medium);
+  white-space: nowrap;
+  border: 1px solid #0000;
+  justify-content: center;
+  align-items: center;
+  transition: all .3s;
+  display: inline-flex;
+  background: black;
+  letter-spacing: 0.02px;
 }
