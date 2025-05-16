@@ -102,6 +102,35 @@ function updateCountryCode(
     )}&name=${encodeURIComponent(fullName)}`;
     return updatedURL;
   }
+
+  /**
+   * Generates a Hubspot URL with user's information
+   * @returns {string|null} The Hubspot URL or null if required fields are missing
+   */
+  function generateHubspotURL() {
+    if (!window.redirectionOptions || !window.redirectionOptions.newTab) {
+      console.error("window.redirectionOptions not found or missing newTab property");
+      return null;
+    }
+    
+    const baseURL = window.redirectionOptions.newTab;
+    const nameField = document.getElementById("first-name");
+    const lastNameField = document.getElementById("last-name");
+    const emailField = document.getElementById("work-email");
+  
+    if (!nameField || !nameField.value.trim() || 
+        !lastNameField || !lastNameField.value.trim() || 
+        !emailField || !emailField.value.trim()) {
+      console.error("Required fields missing or empty");
+      return null;
+    }
+
+    const email = emailField.value;
+    const updatedURL = `${baseURL}?email=${encodeURIComponent(
+      email
+    )}&firstname=${encodeURIComponent(nameField)}&lastname=${encodeURIComponent(lastNameField)}`;
+    return updatedURL;
+  }
   
   /**
    * Validates the entire form, with focus on phone validation
@@ -204,8 +233,16 @@ function updateCountryCode(
    * Handles HubSpot-specific redirection
    */
   function handleHubspotRedirection() {
-    console.log("HubSpot calendar redirection");
-    // Implement HubSpot-specific redirection logic here
+    const newTabUrl = generateHubspotURL();
+    const currentTabUrl = window.redirectionOptions.currentTab;
+  
+    if (newTabUrl) {
+      window.open(newTabUrl, "_blank");
+    }
+    
+    if (currentTabUrl) {
+      window.location.href = currentTabUrl;
+    }
   }
   
   /**
