@@ -128,7 +128,7 @@ function updateCountryCode(
     const email = emailField.value;
     const updatedURL = `${baseURL}?email=${encodeURIComponent(
       email
-    )}&firstname=${encodeURIComponent(nameField)}&lastname=${encodeURIComponent(lastNameField)}`;
+    )}&firstname=${encodeURIComponent(nameField.value.trim())}&lastname=${encodeURIComponent(lastNameField.value.trim())}`;
     return updatedURL;
   }
   
