@@ -368,7 +368,7 @@ function updateDropdownContent(currentIndex) {
       // Show the selected one and animate opacity
       const currentContent = dropdownContents[currentIndex];
       if (currentContent) {
-        if (currentIndex == 0 || currentIndex == 2) {
+        if (currentIndex == 0 || currentIndex == 2 || currentIndex == 3) {
           currentContent.style.display = "grid";
         } else {
           currentContent.style.display = "block";
@@ -391,7 +391,7 @@ function initDropdownContent(currentIndex) {
   // Show only current content
   const currentContent = dropdownContents[currentIndex];
   if (currentContent) {
-    if (currentIndex == 0 || currentIndex == 2) {
+    if (currentIndex == 0 || currentIndex == 2 || currentIndex == 3) {
       currentContent.style.display = "grid";
     } else {
       currentContent.style.display = "block";
