@@ -32,8 +32,7 @@
 
       // Initialize intl-tel-input with India as default
       const iti = window.intlTelInput(input, {
-        utilsScript:
-          "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js",
+        loadUtils: () => import("https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js"),
         separateDialCode: true,
         initialCountry: "auto", // India as default
         geoIpLookup: callback => {
