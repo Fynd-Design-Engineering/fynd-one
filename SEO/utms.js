@@ -1,6 +1,7 @@
 /**
  * Optimized UTM Tracker
  * Handles device detection and link updating with improved performance
+ * Enhanced with redirection options support
  */
 
 // Configuration constants
@@ -37,6 +38,7 @@ const DEVICE_PATTERNS = {
 const cache = {
   utmQuery: null,
   lastParams: null,
+  lastRedirectionOptions: null,
   selectors: {
     links: 'a[href]:not([fynd-utm-exception="true"])',
     buttons: 'button:not([fynd-utm-exception="true"])',
@@ -44,12 +46,36 @@ const cache = {
 };
 
 /**
- * Optimized UTM object validation - now treats all properties as optional
+ * Create default UTM parameters object if not found
+ */
+function createDefaultUTMParams() {
+  // Global UTM Parameters Object - accessible throughout the document
+  window.utmParams = {
+    utm_source: window.location.hostname || "Unknown Source",
+    utm_medium: window.location.pathname || "Unknown Page",
+    utm_campaign: "",
+    utm_source_platform: "",
+    utm_term: "",
+  };
+
+  if (!isProduction()) {
+    console.log("Created default UTM parameters:", window.utmParams);
+  }
+
+  return true;
+}
+
+/**
+ * Optimized UTM object validation - creates default if not found
  */
 function checkUTMObject() {
+  // If utmParams doesn't exist or is not an object, create default
   if (!window.utmParams || typeof window.utmParams !== "object") {
-    console.warn("🚨 UTM WARNING: window.utmParams object not found!");
-    return false;
+    console.warn(
+      "🚨 UTM WARNING: window.utmParams object not found! Creating default..."
+    );
+    createDefaultUTMParams();
+    return true;
   }
 
   // Check if at least the object structure exists (properties can be empty)
@@ -59,9 +85,10 @@ function checkUTMObject() {
 
   if (!hasValidStructure) {
     console.warn(
-      "UTM Warning: utmParams object exists but has no UTM properties"
+      "UTM Warning: utmParams object exists but has no UTM properties. Creating default..."
     );
-    return false;
+    createDefaultUTMParams();
+    return true;
   }
 
   return true;
@@ -71,6 +98,7 @@ function checkUTMObject() {
  * Optimized device detection with caching
  */
 function detectAndSetPlatform() {
+  // Ensure UTM object exists (will create default if needed)
   if (!checkUTMObject()) return null;
 
   const { width: screenWidth, height: screenHeight } = window.screen;
@@ -109,6 +137,7 @@ function detectAndSetPlatform() {
  * Detailed device detection (alternative)
  */
 function detectAndSetPlatformDetailed() {
+  // Ensure UTM object exists (will create default if needed)
   if (!checkUTMObject()) return null;
 
   const { width: screenWidth } = window.screen;
@@ -163,6 +192,110 @@ function buildUTMQueryString() {
   cache.lastParams = currentParams;
 
   return cache.utmQuery;
+}
+
+/**
+ * Add UTM parameters to a single URL
+ */
+function addUTMToURL(url) {
+  if (!url || typeof url !== "string") return url;
+
+  const utmQuery = buildUTMQueryString();
+  if (!utmQuery) return url;
+
+  try {
+    // Handle relative URLs
+    const baseURL = url.startsWith("/") ? window.location.origin : "";
+    const fullURL = new URL(url, baseURL || window.location.origin);
+
+    // Remove existing UTM parameters (only the ones we manage)
+    UTM_CONFIG.OPTIONAL_PROPERTIES.forEach((param) =>
+      fullURL.searchParams.delete(param)
+    );
+
+    // Add new UTM parameters
+    const newParams = new URLSearchParams(utmQuery);
+    for (const [key, value] of newParams) {
+      fullURL.searchParams.set(key, value);
+    }
+
+    // Return relative URL if it was originally relative
+    if (url.startsWith("/")) {
+      return fullURL.pathname + fullURL.search + fullURL.hash;
+    }
+
+    return fullURL.toString();
+  } catch (error) {
+    console.error("Error adding UTM to URL:", url, error);
+    return url;
+  }
+}
+
+/**
+ * Check and update redirection options with UTM parameters
+ */
+function checkAndUpdateRedirectionOptions() {
+  if (
+    !window.redirectionOptions ||
+    typeof window.redirectionOptions !== "object"
+  ) {
+    return false;
+  }
+
+  // Ensure UTM object exists (will create default if needed)
+  if (!checkUTMObject()) {
+    return false;
+  }
+
+  const currentRedirectionStr = JSON.stringify(window.redirectionOptions);
+
+  // Return if redirection options haven't changed and we've already processed them
+  if (cache.lastRedirectionOptions === currentRedirectionStr) {
+    return true;
+  }
+
+  let updated = false;
+
+  // Update newTab URL if it exists
+  if (
+    window.redirectionOptions.newTab &&
+    typeof window.redirectionOptions.newTab === "string"
+  ) {
+    const originalNewTab = window.redirectionOptions.newTab;
+    const updatedNewTab = addUTMToURL(originalNewTab);
+
+    if (updatedNewTab !== originalNewTab) {
+      window.redirectionOptions.newTab = updatedNewTab;
+      updated = true;
+    }
+  }
+
+  // Update currentTab URL if it exists
+  if (
+    window.redirectionOptions.currentTab &&
+    typeof window.redirectionOptions.currentTab === "string"
+  ) {
+    const originalCurrentTab = window.redirectionOptions.currentTab;
+    const updatedCurrentTab = addUTMToURL(originalCurrentTab);
+
+    if (updatedCurrentTab !== originalCurrentTab) {
+      window.redirectionOptions.currentTab = updatedCurrentTab;
+      updated = true;
+    }
+  }
+
+  // Cache the current state
+  cache.lastRedirectionOptions = currentRedirectionStr;
+
+  if (updated && !isProduction()) {
+    console.log("Redirection options updated with UTM parameters:", {
+      type: window.redirectionOptions.type,
+      newTab: window.redirectionOptions.newTab,
+      currentTab: window.redirectionOptions.currentTab,
+    });
+  }
+
+  return updated;
 }
 
 /**
@@ -248,8 +381,11 @@ function updateSingleButton(button) {
  * Main optimized updateLinks function
  */
 function updateLinks() {
+  // Ensure UTM object exists (will create default if needed)
   if (!checkUTMObject()) {
-    console.error("Cannot update links: UTM object not found");
+    console.error(
+      "Cannot update links: Failed to create or validate UTM object"
+    );
     return false;
   }
 
@@ -281,6 +417,9 @@ function updateLinks() {
   for (const button of buttons) {
     updateSingleButton(button) ? stats.updated++ : stats.skipped++;
   }
+
+  // Check and update redirection options
+  checkAndUpdateRedirectionOptions();
 
   // Optimized logging (only in development)
   if (!isProduction()) {
@@ -318,11 +457,50 @@ function autoUpdateLinks() {
           // Clear cache when params change
           cache.utmQuery = null;
           cache.lastParams = null;
+          cache.lastRedirectionOptions = null; // Clear redirection cache too
 
           // Debounced update
           clearTimeout(window.utmUpdateTimeout);
-          window.utmUpdateTimeout = setTimeout(
-            updateLinks,
+          window.utmUpdateTimeout = setTimeout(() => {
+            updateLinks();
+            checkAndUpdateRedirectionOptions();
+          }, UTM_CONFIG.DOM_UPDATE_DEBOUNCE);
+        }
+        return true;
+      },
+    });
+  }
+
+  return true;
+}
+
+/**
+ * Monitor redirection options for changes
+ */
+function autoUpdateRedirectionOptions() {
+  if (
+    !window.redirectionOptions ||
+    typeof window.redirectionOptions !== "object"
+  ) {
+    return false;
+  }
+
+  // Avoid double-proxying
+  if (window.redirectionOptions.constructor.name === "Object") {
+    const originalOptions = { ...window.redirectionOptions };
+
+    window.redirectionOptions = new Proxy(originalOptions, {
+      set(target, property, value) {
+        if (target[property] !== value) {
+          target[property] = value;
+
+          // Clear redirection cache when options change
+          cache.lastRedirectionOptions = null;
+
+          // Debounced update
+          clearTimeout(window.redirectionUpdateTimeout);
+          window.redirectionUpdateTimeout = setTimeout(
+            checkAndUpdateRedirectionOptions,
             UTM_CONFIG.DOM_UPDATE_DEBOUNCE
           );
         }
@@ -359,7 +537,10 @@ function initializeAutoUpdate() {
 
     if (shouldUpdate) {
       clearTimeout(updateTimeout);
-      updateTimeout = setTimeout(updateLinks, UTM_CONFIG.DOM_UPDATE_DEBOUNCE);
+      updateTimeout = setTimeout(() => {
+        updateLinks();
+        checkAndUpdateRedirectionOptions();
+      }, UTM_CONFIG.DOM_UPDATE_DEBOUNCE);
     }
   });
 
@@ -390,6 +571,7 @@ function initializePlatformDetection() {
             // Clear cache on resize
             cache.utmQuery = null;
             cache.lastParams = null;
+            cache.lastRedirectionOptions = null;
           }
         }, UTM_CONFIG.RESIZE_DEBOUNCE);
       },
@@ -414,7 +596,11 @@ function initializeUTMTracker() {
   setTimeout(() => {
     updateLinks();
     autoUpdateLinks();
+    autoUpdateRedirectionOptions();
     initializeAutoUpdate();
+
+    // Initial check for redirection options
+    checkAndUpdateRedirectionOptions();
   }, UTM_CONFIG.INIT_DELAY + 50);
 }
 
@@ -426,6 +612,9 @@ window.UTMTracker = {
   updateLinks,
   detectAndSetPlatform,
   checkUTMObject,
+  createDefaultUTMParams,
   autoUpdateLinks,
   initializeAutoUpdate,
+  checkAndUpdateRedirectionOptions,
+  addUTMToURL,
 };
