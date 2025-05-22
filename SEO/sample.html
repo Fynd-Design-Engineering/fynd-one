@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global UTM Parameters</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .json-display {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .output {
+            background: #e8f5e8;
+            border: 1px solid #c3e6c3;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Global UTM Parameters Object</h1>
+        
+        <p>A global <code>utmParams</code> object has been declared on the document. This object contains all the UTM tracking parameters:</p>
+        
+        <div class="json-display" id="jsonDisplay"></div>
+        
+        <div>
+            <button class="test-button" onclick="showGlobalObject()">Show Global Object</button>
+            <button class="test-button" onclick="updateParam()">Update Campaign</button>
+            <button class="test-button" onclick="getSpecificParam()">Get Source</button>
+        </div>
+        
+        <div class="output" id="output">Click a button to test the global object...</div>
+    </div>
+
+    <script>
+        // Global UTM Parameters Object - accessible throughout the document
+        window.utmParams = {
+            "utm_source": "",
+            "utm_medium": "",
+            "utm_campaign": "",
+            "utm_source_platform": "",
+            "utm_term": ""
+        };
+
+        // Initialize with sample values
+        window.utmParams.utm_source = "google";
+        window.utmParams.utm_medium = "cpc";
+        window.utmParams.utm_campaign = "spring_sale_2025";
+        window.utmParams.utm_source_platform = "search";
+        window.utmParams.utm_term = "running_shoes";
+
+        // Display the JSON object
+        function displayJSON() {
+            const jsonDisplay = document.getElementById('jsonDisplay');
+            jsonDisplay.textContent = JSON.stringify(window.utmParams, null, 2);
+        }
+
+        // Test functions to demonstrate global accessibility
+        function showGlobalObject() {
+            const output = document.getElementById('output');
+            output.innerHTML = `<strong>Global Object:</strong><br>${JSON.stringify(window.utmParams, null, 2)}`;
+        }
+
+        function updateParam() {
+            window.utmParams.utm_campaign = "summer_sale_2025";
+            const output = document.getElementById('output');
+            output.innerHTML = `<strong>Updated campaign:</strong> ${window.utmParams.utm_campaign}`;
+            displayJSON();
+        }
+
+        function getSpecificParam() {
+            const output = document.getElementById('output');
+            output.innerHTML = `<strong>UTM Source:</strong> ${window.utmParams.utm_source}`;
+        }
+
+        // Initialize display
+        displayJSON();
+
+        // Make the object globally accessible in multiple ways
+        // Method 1: Already attached to window object
+        // Method 2: Also attach to document for additional global access
+        document.utmParams = window.utmParams;
+        
+        // Method 3: Create a global getter function
+        window.getUTMParams = function() {
+            return window.utmParams;
+        };
+        
+        // Method 4: Create individual parameter getter functions
+        window.getUTMSource = () => window.utmParams.utm_source;
+        window.getUTMMedium = () => window.utmParams.utm_medium;
+        window.getUTMCampaign = () => window.utmParams.utm_campaign;
+        window.getUTMSourcePlatform = () => window.utmParams.utm_source_platform;
+        window.getUTMTerm = () => window.utmParams.utm_term;
+        
+        // Method 5: Create a global setter function
+        window.setUTMParam = function(key, value) {
+            if (window.utmParams.hasOwnProperty(key)) {
+                window.utmParams[key] = value;
+                displayJSON();
+                return true;
+            }
+            return false;
+        };
+
+        console.log('Global UTM Parameters object is now available via:');
+        console.log('- window.utmParams');
+        console.log('- document.utmParams');
+        console.log('- window.getUTMParams()');
+        console.log('- Individual getter functions');
+    </script>
+</body>
+</html>
