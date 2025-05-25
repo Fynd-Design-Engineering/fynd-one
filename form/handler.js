@@ -1,13 +1,75 @@
 /**
  * Form Validation and Submission Script for Webflow
  * Handles phone validation, form submission prevention, and redirection logic
+ * Works with separate phone validator script
  */
 
 /**
+ * Wait for phone validator to be ready before executing validation
+ */
+function waitForPhoneValidator() {
+  return new Promise((resolve) => {
+    // Check if phone validator is available
+    if (typeof window.validatePhone === 'function') {
+      // Also check if there's an initialized phone input
+      const phoneInput = document.querySelector("#phone-number");
+      if (phoneInput && phoneInput.iti) {
+        resolve(true);
+        return;
+      }
+    }
+
+    // If not ready, wait and check again
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds max wait
+    
+    const checkInterval = setInterval(() => {
+      attempts++;
+      
+      if (typeof window.validatePhone === 'function') {
+        const phoneInput = document.querySelector("#phone-number");
+        if (phoneInput && phoneInput.iti) {
+          clearInterval(checkInterval);
+          resolve(true);
+          return;
+        }
+      }
+      
+      if (attempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        console.warn("Phone validator not ready after 5 seconds");
+        resolve(false);
+      }
+    }, 100);
+  });
+}
+
+/**
+ * Safe phone validation that waits for validator to be ready
+ */
+async function safeValidatePhone(phoneInput, phoneNumber) {
+  const isReady = await waitForPhoneValidator();
+  
+  if (!isReady) {
+    return {
+      isValid: false,
+      message: "Phone validator not initialized"
+    };
+  }
+  
+  try {
+    return window.validatePhone(phoneInput, phoneNumber);
+  } catch (error) {
+    console.error("Phone validation error:", error);
+    return {
+      isValid: false,
+      message: "Validation failed"
+    };
+  }
+}
+
+/**
  * Updates a hidden input with the country code from an initialized intl-tel-input element
- *
- * @param {string|HTMLElement} phoneInputSelector - Phone input element or its selector
- * @param {string} countryCodeInputId - ID of the hidden input to update with country code
  */
 function updateCountryCode(
   phoneInputSelector = "#phone-number",
@@ -155,9 +217,9 @@ function generateHubspotURL() {
 
 /**
  * Validates the entire form, with focus on phone validation
- * @returns {boolean} Whether the form is valid
+ * @returns {Promise<boolean>} Whether the form is valid
  */
-function validateForm() {
+async function validateForm() {
   const phoneField = document.querySelector("#phone-number");
 
   if (!phoneField) {
@@ -167,31 +229,20 @@ function validateForm() {
 
   const phoneValue = phoneField.value;
 
-  if (typeof window.validatePhone !== "function") {
-    console.error(
-      "validatePhone function not found. Is the phone validator library loaded?"
-    );
-    return false;
-  }
-
-  const validation = window.validatePhone("phone-number", phoneValue);
+  // Use safe validation that waits for validator to be ready
+  const validation = await safeValidatePhone("phone-number", phoneValue);
 
   if (!validation.isValid) {
     console.error(`Phone validation failed: ${validation.message}`);
 
-    if (phoneError) {
-      phoneError.style.display = "block";
-      phoneError.textContent =
-        validation.message || "Please enter a valid phone number";
-    }
-
-    phoneField.focus();
-
+    // Use browser's built-in validation instead of undefined phoneError
+    phoneField.setCustomValidity(validation.message || "Please enter a valid phone number");
+    phoneField.reportValidity();
+    
     return false;
   } else {
-    if (phoneError) {
-      phoneError.style.display = "none";
-    }
+    // Clear any previous validation errors
+    phoneField.setCustomValidity("");
   }
 
   return true;
@@ -346,51 +397,52 @@ function overrideWebflowFormSubmission() {
     return;
   }
 
-  // Add validation using setCustomValidity
-  phoneField.addEventListener("invalid", function (event) {
-    const validation = window.validatePhone("phone-number", phoneField.value);
-    if (!validation.isValid) {
-      phoneField.setCustomValidity(
-        validation.message || "Please enter a valid phone number"
-      );
-    }
-  });
-
+  // Add real-time validation clearing
   phoneField.addEventListener("input", function () {
     phoneField.setCustomValidity("");
   });
 
-  phoneField.addEventListener("blur", function () {
-    const validation = window.validatePhone("phone-number", phoneField.value);
-    if (!validation.isValid && phoneField.value.trim() !== "") {
-      phoneField.setCustomValidity(
-        validation.message || "Please enter a valid phone number"
-      );
-    } else {
-      phoneField.setCustomValidity("");
+  // Add validation on blur with proper timing
+  phoneField.addEventListener("blur", async function () {
+    if (phoneField.value.trim() !== "") {
+      const validation = await safeValidatePhone("phone-number", phoneField.value);
+      if (!validation.isValid) {
+        phoneField.setCustomValidity(
+          validation.message || "Please enter a valid phone number"
+        );
+      } else {
+        phoneField.setCustomValidity("");
+        // Update country code when validation passes
+        updateCountryCode();
+      }
     }
   });
 
-  // Handle form submission with redirection
+  // Handle form submission with async validation
   form.addEventListener(
     "submit",
-    function (event) {
-      const validation = window.validatePhone("phone-number", phoneField.value);
+    async function (event) {
+      console.log("Form submission intercepted");
+      
+      // Prevent default submission temporarily
+      event.preventDefault();
+      
+      const validation = await safeValidatePhone("phone-number", phoneField.value);
 
       if (!validation.isValid) {
         phoneField.setCustomValidity(
           validation.message || "Please enter a valid phone number"
         );
-        event.preventDefault();
-        phoneField.focus();
+        phoneField.reportValidity();
         return false;
       } else {
         phoneField.setCustomValidity("");
-
         console.log("Validation passed, allowing form submission");
 
-        // Restore redirection logic - but use a more reliable approach
-        // Track form submission time to set up delayed redirection
+        // Update country code before final submission
+        updateCountryCode();
+
+        // Store submission time for delayed redirection
         window._formSubmissionTime = Date.now();
 
         // Set up a delayed redirection that gives Webflow time to process
@@ -399,7 +451,13 @@ function overrideWebflowFormSubmission() {
           handleFormSubmission();
         }, 3000);
 
-        // Let the form submit normally
+        // Now allow the form to submit by creating a new submit event
+        // Remove this event listener to avoid infinite loop
+        form.removeEventListener("submit", arguments.callee);
+        
+        // Trigger the original form submission
+        form.submit();
+        
         return true;
       }
     },
@@ -426,34 +484,50 @@ function overrideWebflowFormSubmission() {
  * Initialize everything when the DOM is ready
  */
 document.addEventListener("DOMContentLoaded", function () {
-  // Detect phone input
-  const phoneField = document.querySelector("#phone-number");
-  if (phoneField) {
-    // Add validation on blur - using only browser validation
-    phoneField.addEventListener("blur", function () {
-      if (typeof window.validatePhone === "function") {
-        const validation = window.validatePhone(
-          "phone-number",
-          phoneField.value
-        );
-        if (!validation.isValid && phoneField.value.trim() !== "") {
-          phoneField.setCustomValidity(
-            validation.message || "Please enter a valid phone number"
-          );
-        } else {
-          phoneField.setCustomValidity("");
+  console.log("🚀 Initializing form handler...");
+
+  // Wait a bit for phone validator to initialize
+  setTimeout(async () => {
+    // Check if phone validator is ready
+    const phoneValidatorReady = await waitForPhoneValidator();
+    
+    if (phoneValidatorReady) {
+      console.log("✅ Phone validator detected and ready");
+    } else {
+      console.warn("⚠️ Phone validator not ready - validation may not work properly");
+    }
+
+    // Detect phone input and add listeners
+    const phoneField = document.querySelector("#phone-number");
+    if (phoneField) {
+      // Add validation on blur - using safe validation
+      phoneField.addEventListener("blur", async function () {
+        if (phoneField.value.trim() !== "") {
+          const validation = await safeValidatePhone("phone-number", phoneField.value);
+          if (!validation.isValid) {
+            phoneField.setCustomValidity(
+              validation.message || "Please enter a valid phone number"
+            );
+          } else {
+            phoneField.setCustomValidity("");
+            updateCountryCode();
+          }
         }
-      }
-    });
-  }
+      });
 
-  // Select placeholders
-  setupSelectPlaceholders();
+      console.log("✅ Phone field listeners added");
+    }
 
-  // Initialize country code and page data
-  updateCountryCode();
-  updatePageData();
+    // Initialize other components
+    setupSelectPlaceholders();
+    updatePageData();
+    overrideWebflowFormSubmission();
 
-  // Override Webflow form submission
-  overrideWebflowFormSubmission();
+    // Update country code after everything is ready
+    setTimeout(() => {
+      updateCountryCode();
+    }, 1000);
+
+    console.log("✅ Form handler initialization complete");
+  }, 500); // Give phone validator time to initialize
 });
