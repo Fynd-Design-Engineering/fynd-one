@@ -155,6 +155,7 @@ function generateHubspotURL() {
 
 /**
  * Validates the entire form, with focus on phone validation
+ * Uses custom validation as primary method since it's more reliable
  * @returns {boolean} Whether the form is valid
  */
 function validateForm() {
@@ -168,14 +169,16 @@ function validateForm() {
 
   const phoneValue = phoneField.value;
 
-  if (typeof window.validatePhone !== "function") {
-    console.error(
-      "validatePhone function not found. Is the phone validator library loaded?"
-    );
+  // Use validatePhoneCustom as primary method (more reliable)
+  let validation;
+  if (typeof window.validatePhoneCustom === "function") {
+    validation = window.validatePhoneCustom("phone-number", phoneValue);
+  } else if (typeof window.validatePhone === "function") {
+    validation = window.validatePhone("phone-number", phoneValue);
+  } else {
+    console.error("No phone validation function available");
     return false;
   }
-
-  const validation = window.validatePhone("phone-number", phoneValue);
 
   if (!validation.isValid) {
     console.error(`Phone validation failed: ${validation.message}`);
@@ -376,7 +379,13 @@ function overrideWebflowFormSubmission() {
   form.addEventListener(
     "submit",
     function (event) {
-      const validation = window.validatePhone("phone-number", phoneField.value);
+      // Use validatePhoneCustom as primary method (more reliable)
+      let validation;
+      if (typeof window.validatePhoneCustom === "function") {
+        validation = window.validatePhoneCustom("phone-number", phoneField.value);
+      } else {
+        validation = window.validatePhone("phone-number", phoneField.value);
+      }
 
       if (!validation.isValid) {
         phoneField.setCustomValidity(
