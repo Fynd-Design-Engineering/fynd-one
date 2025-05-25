@@ -7,6 +7,9 @@
 (function () {
   // Create global phoneValidator object to be accessible from anywhere
   window.phoneValidator = {};
+  
+  // Store utils reference globally once loaded
+  let intlTelInputUtils = null;
 
   // Initialize phone input when DOM is ready
   document.addEventListener("DOMContentLoaded", function () {
@@ -32,7 +35,12 @@
 
       // Initialize intl-tel-input with India as default
       const iti = window.intlTelInput(input, {
-        loadUtils: () => import("https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js"),
+        loadUtils: () => import("https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js")
+          .then((utils) => {
+            // Store utils globally once loaded
+            intlTelInputUtils = utils.default || utils;
+            return intlTelInputUtils;
+          }),
         separateDialCode: true,
         initialCountry: "auto", // India as default
         geoIpLookup: callback => {
@@ -110,6 +118,19 @@
           // Remove the "+" and country code from the full number to get just the phone number
           const phoneNumberOnly = fullNumber.substring(1 + countryCode.length);
 
+          // Check if utils are loaded for formatting
+          let formatInternational = fullNumber;
+          let formatNational = fullNumber;
+          
+          if (intlTelInputUtils) {
+            try {
+              formatInternational = iti.getNumber(intlTelInputUtils.numberFormat.INTERNATIONAL);
+              formatNational = iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL);
+            } catch (e) {
+              console.warn("Could not format number:", e);
+            }
+          }
+
           return {
             isValid: true,
             message: "Valid number",
@@ -118,12 +139,90 @@
             phoneNumber: phoneNumberOnly,
             countryIso: iti.getSelectedCountryData().iso2,
             countryName: iti.getSelectedCountryData().name,
-            formatInternational: iti.getNumber(
-              intlTelInputUtils.numberFormat.INTERNATIONAL
-            ),
-            formatNational: iti.getNumber(
-              intlTelInputUtils.numberFormat.NATIONAL
-            ),
+            formatInternational: formatInternational,
+            formatNational: formatNational,
+          };
+        } else {
+          const errorCode = iti.getValidationError();
+          const errorText = errorMap[errorCode] || "Invalid number";
+          return {
+            isValid: false,
+            message: errorText,
+            errorCode: errorCode,
+          };
+        }
+      } else {
+        return {
+          isValid: false,
+          message: "No phone number provided",
+        };
+      }
+    };
+
+    // Alternative validation function that waits for utils to load
+    window.validatePhoneAsync = async (phoneInput, phoneNumber) => {
+      // Get the input element
+      let input;
+      if (typeof phoneInput === "string") {
+        input = document.getElementById(phoneInput);
+      } else if (phoneInput instanceof HTMLElement) {
+        input = phoneInput;
+      } else {
+        input = document.querySelector("input[type='tel']") || document.querySelector(".phone-input");
+      }
+
+      if (!input || !input.iti) {
+        return { isValid: false, message: "Phone input not found or not initialized" };
+      }
+
+      const iti = input.iti;
+
+      // Wait for utils to load if not already loaded
+      if (!intlTelInputUtils) {
+        try {
+          const utils = await import("https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js");
+          intlTelInputUtils = utils.default || utils;
+        } catch (e) {
+          console.warn("Could not load intl-tel-input utils:", e);
+        }
+      }
+
+      // If a phone number is provided, use it; otherwise, use the input value
+      if (phoneNumber !== undefined) {
+        input.value = phoneNumber;
+        iti.setNumber(phoneNumber);
+      }
+
+      const number = input.value.trim();
+
+      if (number) {
+        if (iti.isValidNumber()) {
+          const fullNumber = iti.getNumber();
+          const countryCode = iti.getSelectedCountryData().dialCode;
+          const phoneNumberOnly = fullNumber.substring(1 + countryCode.length);
+
+          let formatInternational = fullNumber;
+          let formatNational = fullNumber;
+          
+          if (intlTelInputUtils) {
+            try {
+              formatInternational = iti.getNumber(intlTelInputUtils.numberFormat.INTERNATIONAL);
+              formatNational = iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL);
+            } catch (e) {
+              console.warn("Could not format number:", e);
+            }
+          }
+
+          return {
+            isValid: true,
+            message: "Valid number",
+            fullNumber: fullNumber,
+            countryCode: countryCode,
+            phoneNumber: phoneNumberOnly,
+            countryIso: iti.getSelectedCountryData().iso2,
+            countryName: iti.getSelectedCountryData().name,
+            formatInternational: formatInternational,
+            formatNational: formatNational,
           };
         } else {
           const errorCode = iti.getValidationError();
@@ -221,8 +320,12 @@
       "color: blue;"
     );
     console.log(
-      '%c For custom validation rules: window.validatePhoneCustom("phone-input-id", "+1 555 123 4567")',
+      '%c For async validation: await window.validatePhoneAsync("phone-input-id", "+1 555 123 4567")',
       "color: purple;"
+    );
+    console.log(
+      '%c For custom validation rules: window.validatePhoneCustom("phone-input-id", "+1 555 123 4567")',
+      "color: orange;"
     );
   });
 })();
