@@ -129,7 +129,9 @@ function generateHubspotURL() {
   const nameField = document.getElementById("first-name");
   const lastNameField = document.getElementById("last-name");
   const emailField = document.getElementById("work-email");
+  const companyField = document.getElementById("company-name"); // Optional field
   
+  // Check only REQUIRED fields
   if (
     !nameField || !nameField.value.trim() ||
     !lastNameField || !lastNameField.value.trim() ||
@@ -142,21 +144,27 @@ function generateHubspotURL() {
   try {
     const url = new URL(baseURL);
     
-    // Remove any existing email, firstname, lastname params to avoid conflicts
-    // This is crucial to prevent interference from the UTM tracker script
+    // Remove any existing params to avoid conflicts
     url.searchParams.delete('email');
     url.searchParams.delete('firstname');
     url.searchParams.delete('lastname');
+    url.searchParams.delete('company');
     
-    // Also remove any malformed versions that might exist
+    // Also remove case variations
     url.searchParams.delete('Email');
     url.searchParams.delete('FirstName');
     url.searchParams.delete('LastName');
+    url.searchParams.delete('Company');
     
-    // Add fresh, properly encoded parameters
+    // Add required parameters
     url.searchParams.set('email', emailField.value.trim());
     url.searchParams.set('firstname', nameField.value.trim());
     url.searchParams.set('lastname', lastNameField.value.trim());
+    
+    // Add company parameter ONLY if field exists and has value
+    if (companyField && companyField.value.trim()) {
+      url.searchParams.set('company', companyField.value.trim());
+    }
     
     return url.toString();
   } catch (error) {
