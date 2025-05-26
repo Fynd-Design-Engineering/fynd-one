@@ -1,7 +1,7 @@
 function getTrackingProperties() {
   return {
     source_page: window.location.pathname,
-    fynd_product: getFyndProduct(), // You'll need to implement this based on your logic
+    fynd_product: "fynd.com website",
     interface: "Webflow",
     device_type: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent)
       ? "Mobile"
@@ -16,14 +16,6 @@ function getTrackingProperties() {
   };
 }
 
-// Helper function to determine fynd_product - customize based on your needs
-function getFyndProduct() {
-  const pathname = window.location.pathname;
-  if (pathname.includes("hero")) return "hero_section";
-  if (pathname.includes("footer")) return "footer";
-  return "unknown";
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   posthog.capture("$pageview", getTrackingProperties());
 });
@@ -35,6 +27,9 @@ window.addEventListener("load", function () {
 document.addEventListener("DOMContentLoaded", function () {
   const signUpButtons = document.querySelectorAll('[data-ph="sign-up"]');
   const signInButtons = document.querySelectorAll('[data-ph="sign-in"]');
+  const scrollToFormButtons = document.querySelectorAll(
+    '[href="#footer-form"]'
+  );
 
   signUpButtons.forEach((button) => {
     button.addEventListener("click", function () {
@@ -45,6 +40,12 @@ document.addEventListener("DOMContentLoaded", function () {
   signInButtons.forEach((button) => {
     button.addEventListener("click", function () {
       posthog.capture("clicked_sign_in", getTrackingProperties());
+    });
+  });
+
+  scrollToFormButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      posthog.capture("clicked_scroll_to_form", getTrackingProperties());
     });
   });
 });
