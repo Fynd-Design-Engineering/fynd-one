@@ -304,11 +304,6 @@ function checkAndUpdateRedirectionOptions() {
 function isValidLink(href) {
   if (!href) return false;
 
-  // Exclude HubSpot meeting URLs from UTM processing
-  if (href.includes('meetings') && href.includes('hubspot.com')) {
-    return false;
-  }
-
   return !UTM_CONFIG.EXCLUDED_PROTOCOLS.some(
     (protocol) => href === protocol || href.startsWith(protocol)
   );
