@@ -1,6 +1,6 @@
 /**
  * Phone Validator Library
- * A simplified version of the International Telephone Input with India as default
+ * Using intl-tel-input v17.0.8 - stable version without ES module issues
  */
 
 // Initialize the phone validator when the script loads
@@ -32,20 +32,19 @@
 
       // Initialize intl-tel-input with India as default
       const iti = window.intlTelInput(input, {
-        loadUtils: () => import("https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js"),
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
         separateDialCode: true,
-        initialCountry: "auto", // India as default
-        geoIpLookup: callback => {
+        initialCountry: "auto",
+        geoIpLookup: function(callback) {
           fetch("https://ipapi.co/json")
             .then(res => res.json())
             .then(data => callback(data.country_code))
-            .catch(() => callback("us"));
+            .catch(() => callback("in")); // Default to India
         },
         nationalMode: false,
-        validationNumberTypes: ["FIXED_LINE_OR_MOBILE", "MOBILE", "FIXED_LINE"], // Accept all phone types
-        allowDropdown: true, // Allow users to select country from dropdown
-        autoPlaceholder: "polite", // Show placeholder based on country
-        formatOnDisplay: true, // Format number on display
+        allowDropdown: true,
+        autoPlaceholder: "polite",
+        formatOnDisplay: true,
       });
 
       // Store iti instance in input's data
@@ -54,7 +53,7 @@
       // Add event listener for country change to update placeholder
       input.addEventListener("countrychange", function () {
         // Optional: Add specific logic when country changes
-        // For example, update any country-specific validation rules
+        console.log("Country changed to:", iti.getSelectedCountryData());
       });
     });
 
@@ -118,12 +117,8 @@
             phoneNumber: phoneNumberOnly,
             countryIso: iti.getSelectedCountryData().iso2,
             countryName: iti.getSelectedCountryData().name,
-            formatInternational: iti.getNumber(
-              intlTelInputUtils.numberFormat.INTERNATIONAL
-            ),
-            formatNational: iti.getNumber(
-              intlTelInputUtils.numberFormat.NATIONAL
-            ),
+            formatInternational: iti.getNumber(intlTelInputUtils.numberFormat.INTERNATIONAL),
+            formatNational: iti.getNumber(intlTelInputUtils.numberFormat.NATIONAL),
           };
         } else {
           const errorCode = iti.getValidationError();
@@ -186,7 +181,7 @@
             fullNumber: formattedNumber,
             countryCode: "1",
             phoneNumber: digitsOnly,
-            countryIso: "US",
+            countryIso: "us",
             countryName: "United States",
             formatInternational: `+1 ${digitsOnly.slice(
               0,
@@ -201,7 +196,28 @@
         }
       }
 
-      // Add other country-specific rules as needed
+      // Custom validation for India
+      if (countryCode === "IN") {
+        const digitsOnly = (phoneNumber || input.value).replace(/\D/g, "");
+
+        // Indian mobile numbers are typically 10 digits starting with 6-9
+        if (digitsOnly.length === 10 && /^[6-9]/.test(digitsOnly)) {
+          const formattedNumber = `+91${digitsOnly}`;
+
+          return {
+            isValid: true,
+            message: "Valid number (custom rule)",
+            fullNumber: formattedNumber,
+            countryCode: "91",
+            phoneNumber: digitsOnly,
+            countryIso: "in",
+            countryName: "India",
+            formatInternational: `+91 ${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5)}`,
+            formatNational: `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5)}`,
+            customValidation: true,
+          };
+        }
+      }
 
       // If no custom rules matched, return the standard validation result
       return standardValidation;
@@ -213,7 +229,7 @@
 
     // Log success message
     console.log(
-      "%c Phone Validator Ready!",
+      "%c Phone Validator Ready! (v17.0.8)",
       "color: green; font-weight: bold;"
     );
     console.log(
