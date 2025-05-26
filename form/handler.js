@@ -209,7 +209,7 @@ function handleFormSubmission() {
     if (typeof handleRedirection === "function") {
       handleRedirection();
     } else {
-      window.location.href = "/tms";
+      window.location.href = "/thank-you";
     }
   } catch (error) {
     console.error("Error during form submission:", error);
@@ -382,7 +382,10 @@ function overrideWebflowFormSubmission() {
       // Use validatePhoneCustom as primary method (more reliable)
       let validation;
       if (typeof window.validatePhoneCustom === "function") {
-        validation = window.validatePhoneCustom("phone-number", phoneField.value);
+        validation = window.validatePhoneCustom(
+          "phone-number",
+          phoneField.value
+        );
       } else {
         validation = window.validatePhone("phone-number", phoneField.value);
       }
@@ -402,6 +405,12 @@ function overrideWebflowFormSubmission() {
         // Restore redirection logic - but use a more reliable approach
         // Track form submission time to set up delayed redirection
         window._formSubmissionTime = Date.now();
+        posthog.capture(
+          "form_submitted",
+          window.getTrackingPropertiesWithForm(
+            window.interactedForm || "unknown_form"
+          )
+        );
 
         // Set up a delayed redirection that gives Webflow time to process
         setTimeout(function () {
@@ -424,7 +433,16 @@ function overrideWebflowFormSubmission() {
     $(document).on("webflow-form-success", function (e) {
       if (e.target === form) {
         console.log("Webflow success event detected");
+        posthog.capture(
+          "form_success",
+          window.getTrackingPropertiesWithForm(
+            window.interactedForm || "unknown_form"
+          )
+        );
+
         handleFormSubmission();
+      } else {
+        // event for error in future
       }
     });
   }

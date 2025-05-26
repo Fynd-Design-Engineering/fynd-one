@@ -19,6 +19,8 @@ window.getTrackingProperties = function () {
   };
 };
 
+window.interactedForm = "";
+
 // Function to get tracking properties with form name
 window.getTrackingPropertiesWithForm = function (formName) {
   return {
@@ -74,6 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// Track form interactions
 document.addEventListener("DOMContentLoaded", function () {
   // Select all form fields with data-posthog-trigger attribute
   const formFields = document.querySelectorAll("[data-posthog-trigger]");
@@ -103,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Get the data-name attribute value from the parent form
         const formName = parentForm.getAttribute("data-name");
+        window.interactedForm = formName || "";
 
         if (formName) {
           console.log("Form name (first time):", formName);
