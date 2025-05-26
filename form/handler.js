@@ -121,9 +121,7 @@ function generateCalendlyURL() {
  */
 function generateHubspotURL() {
   if (!window.redirectionOptions || !window.redirectionOptions.newTab) {
-    console.error(
-      "window.redirectionOptions not found or missing newTab property"
-    );
+    console.error("window.redirectionOptions not found or missing newTab property");
     return null;
   }
   
@@ -133,12 +131,9 @@ function generateHubspotURL() {
   const emailField = document.getElementById("work-email");
   
   if (
-    !nameField ||
-    !nameField.value.trim() ||
-    !lastNameField ||
-    !lastNameField.value.trim() ||
-    !emailField ||
-    !emailField.value.trim()
+    !nameField || !nameField.value.trim() ||
+    !lastNameField || !lastNameField.value.trim() ||
+    !emailField || !emailField.value.trim()
   ) {
     console.error("Required fields missing or empty");
     return null;
@@ -147,7 +142,18 @@ function generateHubspotURL() {
   try {
     const url = new URL(baseURL);
     
-    // Add new parameters
+    // Remove any existing email, firstname, lastname params to avoid conflicts
+    // This is crucial to prevent interference from the UTM tracker script
+    url.searchParams.delete('email');
+    url.searchParams.delete('firstname');
+    url.searchParams.delete('lastname');
+    
+    // Also remove any malformed versions that might exist
+    url.searchParams.delete('Email');
+    url.searchParams.delete('FirstName');
+    url.searchParams.delete('LastName');
+    
+    // Add fresh, properly encoded parameters
     url.searchParams.set('email', emailField.value.trim());
     url.searchParams.set('firstname', nameField.value.trim());
     url.searchParams.set('lastname', lastNameField.value.trim());
