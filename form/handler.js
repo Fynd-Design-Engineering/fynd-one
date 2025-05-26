@@ -126,12 +126,12 @@ function generateHubspotURL() {
     );
     return null;
   }
-
+  
   const baseURL = window.redirectionOptions.newTab;
   const nameField = document.getElementById("first-name");
   const lastNameField = document.getElementById("last-name");
   const emailField = document.getElementById("work-email");
-
+  
   if (
     !nameField ||
     !nameField.value.trim() ||
@@ -143,14 +143,20 @@ function generateHubspotURL() {
     console.error("Required fields missing or empty");
     return null;
   }
-
-  const email = emailField.value;
-  const updatedURL = `${baseURL}?email=${encodeURIComponent(
-    email
-  )}&firstname=${encodeURIComponent(
-    nameField.value.trim()
-  )}&lastname=${encodeURIComponent(lastNameField.value.trim())}`;
-  return updatedURL;
+  
+  try {
+    const url = new URL(baseURL);
+    
+    // Add new parameters
+    url.searchParams.set('email', emailField.value.trim());
+    url.searchParams.set('firstname', nameField.value.trim());
+    url.searchParams.set('lastname', lastNameField.value.trim());
+    
+    return url.toString();
+  } catch (error) {
+    console.error("Invalid URL:", error);
+    return null;
+  }
 }
 
 /**
