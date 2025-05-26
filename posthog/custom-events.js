@@ -1,5 +1,5 @@
 //default tracking properties
-function getTrackingProperties() {
+window.getTrackingProperties = function () {
   const pathname = window.location.pathname;
 
   return {
@@ -17,15 +17,16 @@ function getTrackingProperties() {
       new URLSearchParams(window.location.search).get("utm_campaign") || "",
     referrer: document.referrer,
   };
-}
+};
 
 // Function to get tracking properties with form name
-function getTrackingPropertiesWithForm(formName) {
+window.getTrackingPropertiesWithForm = function (formName) {
   return {
-    ...getTrackingProperties(),
+    ...window.getTrackingProperties(),
     form_name: formName,
   };
-}
+};
+
 //getting parent form name by passing field element
 function getParentFormName(fieldElement) {
   const parentForm = fieldElement.closest("form");
