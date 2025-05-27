@@ -121,51 +121,56 @@ function generateCalendlyURL() {
  */
 function generateHubspotURL() {
   if (!window.redirectionOptions || !window.redirectionOptions.newTab) {
-    console.error("window.redirectionOptions not found or missing newTab property");
+    console.error(
+      "window.redirectionOptions not found or missing newTab property"
+    );
     return null;
   }
-  
+
   const baseURL = window.redirectionOptions.newTab;
   const nameField = document.getElementById("first-name");
   const lastNameField = document.getElementById("last-name");
   const emailField = document.getElementById("work-email");
-  const companyField = document.getElementById("company-name"); // Optional field
-  
+  const messageField = document.getElementById("message"); // Optional field
+
   // Check only REQUIRED fields
   if (
-    !nameField || !nameField.value.trim() ||
-    !lastNameField || !lastNameField.value.trim() ||
-    !emailField || !emailField.value.trim()
+    !nameField ||
+    !nameField.value.trim() ||
+    !lastNameField ||
+    !lastNameField.value.trim() ||
+    !emailField ||
+    !emailField.value.trim()
   ) {
     console.error("Required fields missing or empty");
     return null;
   }
-  
+
   try {
     const url = new URL(baseURL);
-    
+
     // Remove any existing params to avoid conflicts
-    url.searchParams.delete('email');
-    url.searchParams.delete('firstname');
-    url.searchParams.delete('lastname');
-    url.searchParams.delete('company');
-    
+    url.searchParams.delete("email");
+    url.searchParams.delete("firstname");
+    url.searchParams.delete("lastname");
+    url.searchParams.delete("message");
+
     // Also remove case variations
-    url.searchParams.delete('Email');
-    url.searchParams.delete('FirstName');
-    url.searchParams.delete('LastName');
-    url.searchParams.delete('Company');
-    
+    url.searchParams.delete("Email");
+    url.searchParams.delete("FirstName");
+    url.searchParams.delete("LastName");
+    url.searchParams.delete("Message");
+
     // Add required parameters
-    url.searchParams.set('email', emailField.value.trim());
-    url.searchParams.set('firstname', nameField.value.trim());
-    url.searchParams.set('lastname', lastNameField.value.trim());
-    
+    url.searchParams.set("email", emailField.value.trim());
+    url.searchParams.set("firstname", nameField.value.trim());
+    url.searchParams.set("lastname", lastNameField.value.trim());
+
     // Add company parameter ONLY if field exists and has value
-    if (companyField && companyField.value.trim()) {
-      url.searchParams.set('company', companyField.value.trim());
+    if (messageField && messageField.value.trim()) {
+      url.searchParams.set("message", messageField.value.trim());
     }
-    
+
     return url.toString();
   } catch (error) {
     console.error("Invalid URL:", error);
