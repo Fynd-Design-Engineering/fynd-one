@@ -23,14 +23,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   toggleMainMenuButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      console.log("Main menu clicked");
+      console.log("Main menu button clicked");
       toggleMainMenu(MainMenu);
     });
   });
 
   toggleNestedMenuButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      console.log("Nested menu clicked");
+      console.log("Nested menu button clicked");
       toggleNestedMenu(NestedMenu);
     });
   });
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
   mainMenuLinks.forEach((link) => {
     link.addEventListener("click", function () {
       let attrValue = this.getAttribute("data-mobile-link");
-      console.log(attrValue);
+      console.log(`Menu link clicked: ${attrValue}`);
       replaceContent(attrValue);
       toggleNestedMenu(NestedMenu);
     });
@@ -57,7 +57,9 @@ function openMobileMainMenu(menu) {
   });
 
   isMainMenuOpen = true;
-  console.log(isMainMenuOpen);
+  console.log("🍔 Main menu OPENED");
+  document.querySelector("[data-menu-icon='open']").style.opacity = 0;
+  document.querySelector("[data-menu-icon='close']").style.opacity = 1;
 }
 
 function closeMobileMainMenu(menu) {
@@ -69,12 +71,15 @@ function closeMobileMainMenu(menu) {
     "transitionend",
     () => {
       menu.style.display = "none";
+      console.log("🍔 Main menu CLOSED (animation complete)");
+      document.querySelector("[data-menu-icon='open']").style.opacity = 1;
+      document.querySelector("[data-menu-icon='close']").style.opacity = 0;
     },
     { once: true }
   );
 
   isMainMenuOpen = false;
-  console.log(isMainMenuOpen);
+  console.log("🍔 Main menu closing...");
 }
 
 function toggleMainMenu(menu) {
@@ -96,14 +101,19 @@ function openMobileNestedMenu(menu) {
   navOverlay.style.opacity = 1;
   setTimeout(() => (menu.style.transform = "translateX(0%)"), 10);
   isNestedMenuOpen = true;
+  console.log("📂 Nested menu OPENED");
 }
 
 function closeMobileNestedMenu(menu) {
   const navOverlay = document.querySelector('[data-nav-element="overlay"]');
   menu.style.transform = "translateX(100%)";
-  setTimeout(() => (menu.style.display = "none"), 500);
+  setTimeout(() => {
+    menu.style.display = "none";
+    console.log("📂 Nested menu CLOSED (animation complete)");
+  }, 500);
   navOverlay.style.opacity = 0;
   isNestedMenuOpen = false;
+  console.log("📂 Nested menu closing...");
 }
 
 function toggleNestedMenu(menu) {
@@ -122,5 +132,6 @@ function replaceContent(attrValue) {
   let targetDiv = document.querySelector(`[data-mobile-menu="${attrValue}"]`);
   if (targetDiv) {
     targetDiv.style.display = "block";
+    console.log(`📄 Content switched to: ${attrValue}`);
   }
 }
