@@ -14,6 +14,9 @@ function logUrlParams() {
   // Extract tags as an array
   const solutions = urlParams.get("solution")?.split(",").filter(Boolean) || [];
 
+  // Extract tags as an array
+  const category = urlParams.get("category")?.split(",").filter(Boolean) || [];
+
   // Check for verified toggle (should be "true" in URL)
   const verified = urlParams.get("verified") === "true";
 
@@ -23,6 +26,7 @@ function logUrlParams() {
     tags.length +
     products.length +
     solutions.length +
+    category.length +
     (verified ? 1 : 0);
 
   // Create JSON object
@@ -32,6 +36,7 @@ function logUrlParams() {
     products,
     solutions,
     verified,
+    category,
   };
 
   // Log JSON object to console
