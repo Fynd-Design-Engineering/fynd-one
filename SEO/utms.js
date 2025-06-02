@@ -1,7 +1,6 @@
 /**
- * Optimized UTM Tracker
- * Handles device detection and link updating with improved performance
- * Enhanced with redirection options support
+ * Optimized UTM Tracker - Fixed to prevent continuous updates
+ * Handles device detection and link updating with single execution
  */
 
 // Configuration constants
@@ -19,7 +18,7 @@ const UTM_CONFIG = {
   DETAILED_MOBILE_MAX: 480,
   DETAILED_TABLET_MAX: 1024,
   RESIZE_DEBOUNCE: 250,
-  DOM_UPDATE_DEBOUNCE: 100,
+  DOM_UPDATE_DEBOUNCE: 500, // Increased debounce time
   INIT_DELAY: 100,
 };
 
@@ -34,11 +33,13 @@ const DEVICE_PATTERNS = {
   mobileSpecific: /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i,
 };
 
-// Cache for performance
+// Cache for performance with initialization flag
 const cache = {
   utmQuery: null,
   lastParams: null,
   lastRedirectionOptions: null,
+  initialized: false,
+  linksProcessed: false,
   selectors: {
     links: 'a[href]:not([fynd-utm-exception="true"])',
     buttons: 'button:not([fynd-utm-exception="true"])',
@@ -122,43 +123,17 @@ function detectAndSetPlatform() {
       ? "mweb"
       : "web";
 
-  window.utmParams.utm_source_platform = platform;
+  // Only update if platform has actually changed
+  if (window.utmParams.utm_source_platform !== platform) {
+    window.utmParams.utm_source_platform = platform;
 
-  if (!isProduction()) {
-    console.log(
-      `Resolution: ${screenWidth}x${screenHeight}, Platform: ${platform}`
-    );
+    if (!isProduction()) {
+      console.log(
+        `Resolution: ${screenWidth}x${screenHeight}, Platform: ${platform}`
+      );
+    }
   }
 
-  return platform;
-}
-
-/**
- * Detailed device detection (alternative)
- */
-function detectAndSetPlatformDetailed() {
-  // Ensure UTM object exists (will create default if needed)
-  if (!checkUTMObject()) return null;
-
-  const { width: screenWidth } = window.screen;
-  const userAgent = navigator.userAgent.toLowerCase();
-
-  const isIPad = DEVICE_PATTERNS.ipad.test(userAgent);
-  const isTablet = DEVICE_PATTERNS.tablet.test(userAgent);
-  const isMobile = DEVICE_PATTERNS.mobileSpecific.test(userAgent);
-
-  const platform =
-    isIPad || isTablet
-      ? "tab"
-      : isMobile
-      ? "mweb"
-      : screenWidth <= UTM_CONFIG.DETAILED_MOBILE_MAX
-      ? "mweb"
-      : screenWidth <= UTM_CONFIG.DETAILED_TABLET_MAX
-      ? "tab"
-      : "web";
-
-  window.utmParams.utm_source_platform = platform;
   return platform;
 }
 
@@ -166,10 +141,21 @@ function detectAndSetPlatformDetailed() {
  * Optimized UTM query string builder - only includes parameters with values
  */
 function buildUTMQueryString() {
-  const currentParams = JSON.stringify(window.utmParams);
+  // Create a stable hash of current params for comparison
+  const currentParamsHash = JSON.stringify(
+    Object.entries(window.utmParams)
+      .filter(
+        ([key, value]) =>
+          UTM_CONFIG.OPTIONAL_PROPERTIES.includes(key) &&
+          value &&
+          typeof value === "string" &&
+          value.trim() !== ""
+      )
+      .sort()
+  );
 
   // Return cached version if params haven't changed
-  if (cache.lastParams === currentParams && cache.utmQuery !== null) {
+  if (cache.lastParams === currentParamsHash && cache.utmQuery !== null) {
     return cache.utmQuery;
   }
 
@@ -189,7 +175,7 @@ function buildUTMQueryString() {
   }
 
   cache.utmQuery = params.toString();
-  cache.lastParams = currentParams;
+  cache.lastParams = currentParamsHash;
 
   return cache.utmQuery;
 }
@@ -232,7 +218,7 @@ function addUTMToURL(url) {
 }
 
 /**
- * Check and update redirection options with UTM parameters
+ * Check and update redirection options with UTM parameters - only once
  */
 function checkAndUpdateRedirectionOptions() {
   if (
@@ -310,9 +296,26 @@ function isValidLink(href) {
 }
 
 /**
+ * Check if link already has UTM parameters
+ */
+function hasUTMParameters(href) {
+  try {
+    const url = new URL(href, window.location.origin);
+    return UTM_CONFIG.OPTIONAL_PROPERTIES.some((param) =>
+      url.searchParams.has(param)
+    );
+  } catch {
+    return href.includes("utm_");
+  }
+}
+
+/**
  * Optimized single link update
  */
 function updateSingleLink(element) {
+  // Skip if already processed
+  if (element.hasAttribute("data-utm-updated")) return false;
+
   const href = element.getAttribute("href");
 
   if (!isValidLink(href)) return false;
@@ -378,9 +381,24 @@ function updateSingleButton(button) {
 }
 
 /**
- * Main optimized updateLinks function
+ * Main optimized updateLinks function - only runs once unless forced
  */
-function updateLinks() {
+function updateLinks(force = false) {
+  // Prevent multiple executions unless forced
+  if (cache.linksProcessed && !force) {
+    if (!isProduction()) {
+      console.log("UTM links already processed, skipping update");
+    }
+    return {
+      linksFound: 0,
+      buttonsFound: 0,
+      updated: 0,
+      skipped: 0,
+      utmParams: window.utmParams,
+      alreadyProcessed: true,
+    };
+  }
+
   // Ensure UTM object exists (will create default if needed)
   if (!checkUTMObject()) {
     console.error(
@@ -421,6 +439,9 @@ function updateLinks() {
   // Check and update redirection options
   checkAndUpdateRedirectionOptions();
 
+  // Mark as processed
+  cache.linksProcessed = true;
+
   // Optimized logging (only in development)
   if (!isProduction()) {
     console.log("UTM Update:", {
@@ -440,69 +461,44 @@ function updateLinks() {
 }
 
 /**
- * Optimized auto-update with better proxy handling
+ * Simplified auto-update - only monitors for actual parameter changes
  */
 function autoUpdateLinks() {
   if (!window.utmParams || typeof window.utmParams !== "object") return false;
 
-  // Avoid double-proxying
+  // Only setup proxy if not already done
   if (window.utmParams.constructor.name === "Object") {
     const originalParams = { ...window.utmParams };
 
     window.utmParams = new Proxy(originalParams, {
       set(target, property, value) {
-        if (target[property] !== value) {
+        const oldValue = target[property];
+
+        // Only trigger update if value actually changed and it's a UTM property
+        if (
+          oldValue !== value &&
+          UTM_CONFIG.OPTIONAL_PROPERTIES.includes(property)
+        ) {
           target[property] = value;
 
           // Clear cache when params change
           cache.utmQuery = null;
           cache.lastParams = null;
-          cache.lastRedirectionOptions = null; // Clear redirection cache too
+          cache.lastRedirectionOptions = null;
+          cache.linksProcessed = false; // Allow re-processing
 
-          // Debounced update
+          // Debounced update - only for significant changes
           clearTimeout(window.utmUpdateTimeout);
           window.utmUpdateTimeout = setTimeout(() => {
-            updateLinks();
+            updateLinks(true); // Force update
             checkAndUpdateRedirectionOptions();
           }, UTM_CONFIG.DOM_UPDATE_DEBOUNCE);
-        }
-        return true;
-      },
-    });
-  }
 
-  return true;
-}
-
-/**
- * Monitor redirection options for changes
- */
-function autoUpdateRedirectionOptions() {
-  if (
-    !window.redirectionOptions ||
-    typeof window.redirectionOptions !== "object"
-  ) {
-    return false;
-  }
-
-  // Avoid double-proxying
-  if (window.redirectionOptions.constructor.name === "Object") {
-    const originalOptions = { ...window.redirectionOptions };
-
-    window.redirectionOptions = new Proxy(originalOptions, {
-      set(target, property, value) {
-        if (target[property] !== value) {
+          if (!isProduction()) {
+            console.log(`UTM parameter changed: ${property} = ${value}`);
+          }
+        } else {
           target[property] = value;
-
-          // Clear redirection cache when options change
-          cache.lastRedirectionOptions = null;
-
-          // Debounced update
-          clearTimeout(window.redirectionUpdateTimeout);
-          window.redirectionUpdateTimeout = setTimeout(
-            checkAndUpdateRedirectionOptions,
-            UTM_CONFIG.DOM_UPDATE_DEBOUNCE
-          );
         }
         return true;
       },
@@ -513,12 +509,15 @@ function autoUpdateRedirectionOptions() {
 }
 
 /**
- * Optimized DOM observer with better performance
+ * Simplified DOM observer - only for new elements
  */
 function initializeAutoUpdate() {
   let updateTimeout;
+  let pendingUpdate = false;
 
   const observer = new MutationObserver((mutations) => {
+    if (pendingUpdate) return; // Prevent multiple pending updates
+
     let shouldUpdate = false;
 
     // Optimized check for relevant changes
@@ -536,10 +535,33 @@ function initializeAutoUpdate() {
     }
 
     if (shouldUpdate) {
+      pendingUpdate = true;
       clearTimeout(updateTimeout);
       updateTimeout = setTimeout(() => {
-        updateLinks();
-        checkAndUpdateRedirectionOptions();
+        // Only update new elements, not all elements
+        const newLinks = document.querySelectorAll(
+          'a[href]:not([data-utm-updated]):not([fynd-utm-exception="true"])'
+        );
+        const newButtons = document.querySelectorAll(
+          'button:not([data-utm-updated]):not([fynd-utm-exception="true"])'
+        );
+
+        if (newLinks.length > 0 || newButtons.length > 0) {
+          // Process only new elements
+          let updated = 0;
+          for (const link of newLinks) {
+            if (updateSingleLink(link)) updated++;
+          }
+          for (const button of newButtons) {
+            if (updateSingleButton(button)) updated++;
+          }
+
+          if (!isProduction() && updated > 0) {
+            console.log(`Updated ${updated} new elements with UTM parameters`);
+          }
+        }
+
+        pendingUpdate = false;
       }, UTM_CONFIG.DOM_UPDATE_DEBOUNCE);
     }
   });
@@ -557,9 +579,12 @@ function initializeAutoUpdate() {
  */
 function initializePlatformDetection() {
   const init = () => {
-    detectAndSetPlatform();
+    if (cache.initialized) return; // Prevent double initialization
 
-    // Debounced resize handler
+    detectAndSetPlatform();
+    cache.initialized = true;
+
+    // Simplified resize handler - only update platform, not all links
     let resizeTimeout;
     window.addEventListener(
       "resize",
@@ -567,11 +592,16 @@ function initializePlatformDetection() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
           if (checkUTMObject()) {
+            const oldPlatform = window.utmParams.utm_source_platform;
             detectAndSetPlatform();
-            // Clear cache on resize
-            cache.utmQuery = null;
-            cache.lastParams = null;
-            cache.lastRedirectionOptions = null;
+
+            // Only clear cache and update if platform actually changed
+            if (oldPlatform !== window.utmParams.utm_source_platform) {
+              cache.utmQuery = null;
+              cache.lastParams = null;
+              cache.linksProcessed = false;
+              updateLinks(true); // Force update due to platform change
+            }
           }
         }, UTM_CONFIG.RESIZE_DEBOUNCE);
       },
@@ -587,29 +617,31 @@ function initializePlatformDetection() {
 }
 
 /**
- * Initialize all UTM functionality
+ * Initialize all UTM functionality - simplified
  */
 function initializeUTMTracker() {
   initializePlatformDetection();
 
-  // Wait for platform detection then update links
+  // Wait for platform detection then update links ONCE
   setTimeout(() => {
-    updateLinks();
-    autoUpdateLinks();
-    autoUpdateRedirectionOptions();
-    initializeAutoUpdate();
+    updateLinks(); // Initial update
+    autoUpdateLinks(); // Setup monitoring for parameter changes
+    initializeAutoUpdate(); // Setup monitoring for new DOM elements
 
     // Initial check for redirection options
     checkAndUpdateRedirectionOptions();
   }, UTM_CONFIG.INIT_DELAY + 50);
 }
 
-// Auto-initialize
-initializeUTMTracker();
+// Auto-initialize only once
+if (!window.UTMTrackerInitialized) {
+  initializeUTMTracker();
+  window.UTMTrackerInitialized = true;
+}
 
 // Expose main functions globally for manual use
 window.UTMTracker = {
-  updateLinks,
+  updateLinks: (force = false) => updateLinks(force),
   detectAndSetPlatform,
   checkUTMObject,
   createDefaultUTMParams,
@@ -617,4 +649,10 @@ window.UTMTracker = {
   initializeAutoUpdate,
   checkAndUpdateRedirectionOptions,
   addUTMToURL,
+  forceUpdate: () => {
+    cache.linksProcessed = false;
+    cache.utmQuery = null;
+    cache.lastParams = null;
+    return updateLinks(true);
+  },
 };
