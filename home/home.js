@@ -1,20 +1,18 @@
 //Onclick Open Chatboat Script
-document.querySelector('.btn_prompt').addEventListener('click', function () {
+document.querySelector(".btn_prompt").addEventListener("click", function () {
   const textarea = this.parentElement.querySelector("textarea");
   if (textarea) {
     const userMessage = textarea.value.trim();
     if (userMessage) {
-      window.copilot('event', 'open');
+      window.copilot("event", "open");
       setTimeout(() => {
-        window.copilot('event', 'sendUserMessage', { "message": userMessage });
-      }, 1000)
+        window.copilot("event", "sendUserMessage", { message: userMessage });
+      }, 1000);
     } else {
       console.warn("Textarea is empty. Please enter a message.");
     }
   }
 });
-
-
 
 //Text Typing Animation Script
 document.addEventListener("DOMContentLoaded", () => {
@@ -51,16 +49,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   typeEffect();
   // Stop auto-typing when a badge is clicked
-  document.querySelectorAll(".prompt_tags .badge_style_three").forEach(badge => {
-    badge.addEventListener("click", (event) => {
-      event.preventDefault();
-      typingActive = false; // Stop typing animation
-      clearTimeout(typingInterval);
-      textarea.value = badge.textContent.trim(); // Set text instantly
-      userHasTyped = true; // Mark as manually typed
-      clearTimeout(restartTimeout);
+  document
+    .querySelectorAll(".prompt_tags .badge_style_three")
+    .forEach((badge) => {
+      badge.addEventListener("click", (event) => {
+        event.preventDefault();
+        typingActive = false; // Stop typing animation
+        clearTimeout(typingInterval);
+        textarea.value = badge.textContent.trim(); // Set text instantly
+        userHasTyped = true; // Mark as manually typed
+        clearTimeout(restartTimeout);
+      });
     });
-  });
   // Stop typing animation when the user manually types
   textarea.addEventListener("input", () => {
     typingActive = false; // Stop auto-typing
@@ -91,13 +91,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-
-
 //Keep Scrolling In The Middle Of Window Script
 document.addEventListener("DOMContentLoaded", () => {
   const mediaContainer = document.querySelector(".media_carousal");
   const cards = document.querySelectorAll(".media_carousal .media_card");
-  if (mediaContainer && cards.length > 1) { // Ensure at least 2 cards exist
+  if (mediaContainer && cards.length > 1) {
+    // Ensure at least 2 cards exist
     const mediaStyles = window.getComputedStyle(mediaContainer);
     const paddingLeft = parseFloat(mediaStyles.paddingLeft);
     const paddingRight = parseFloat(mediaStyles.paddingRight);
@@ -106,13 +105,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const secondCardOffset = secondCard.offsetLeft; // Distance from the start of container
     const secondCardWidth = secondCard.offsetWidth;
     // Center the second card by calculating scroll position
-    const scrollPosition = secondCardOffset - (mediaContainer.clientWidth / 2) + (secondCardWidth / 2);
+    const scrollPosition =
+      secondCardOffset - mediaContainer.clientWidth / 2 + secondCardWidth / 2;
     // Apply the calculated scroll position
     mediaContainer.scrollLeft = scrollPosition;
   }
 });
-
-
 
 //Set The Height From Custom Attributes And Apply Them Through Inline CSS Script
 const mediaCards = document.querySelectorAll(".media_card");
@@ -151,108 +149,119 @@ updateVideoHeights();
 // Update video heights on window resize
 window.addEventListener("resize", updateVideoHeights);
 
-
-
-
 //Custom Video Script
-const videoWrappers = document.querySelectorAll('div[src-webm][src-mp4]');
+const videoWrappers = document.querySelectorAll("div[src-webm][src-mp4]");
 const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let windowHasLoaded = false;
 let currentIsMobileViewport = window.innerWidth <= 767;
 // Step 1: Set poster immediately
-videoWrappers.forEach(wrapper => {
-  const video = wrapper.querySelector('video');
+videoWrappers.forEach((wrapper) => {
+  const video = wrapper.querySelector("video");
   const isMobileViewport = window.innerWidth <= 767;
   const poster = isMobileViewport
-    ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
-    : wrapper.getAttribute('video-poster');
+    ? wrapper.getAttribute("mobile-video-poster") ||
+      wrapper.getAttribute("video-poster")
+    : wrapper.getAttribute("video-poster");
   if (video && poster) {
-    video.setAttribute('poster', poster);
+    video.setAttribute("poster", poster);
   }
 });
 // Step 2: After window fully loaded
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
   windowHasLoaded = true;
-  videoWrappers.forEach(wrapper => {
-    const video = wrapper.querySelector('video');
-    if (!video || video.dataset.loaded === 'true' || video.dataset.observing === 'true') return;
+  videoWrappers.forEach((wrapper) => {
+    const video = wrapper.querySelector("video");
+    if (
+      !video ||
+      video.dataset.loaded === "true" ||
+      video.dataset.observing === "true"
+    )
+      return;
     const isMobileViewport = window.innerWidth <= 767;
     const mp4Src = isMobileViewport
-      ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
-      : wrapper.getAttribute('src-mp4');
+      ? wrapper.getAttribute("mobile-src-mp4") ||
+        wrapper.getAttribute("src-mp4")
+      : wrapper.getAttribute("src-mp4");
     const webmSrc = isMobileViewport
-      ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
-      : wrapper.getAttribute('src-webm');
-    const playBehavior = wrapper.getAttribute('data-play');
-    const threshold = parseFloat(wrapper.getAttribute('threshold') || '0');
+      ? wrapper.getAttribute("mobile-src-webm") ||
+        wrapper.getAttribute("src-webm")
+      : wrapper.getAttribute("src-webm");
+    const playBehavior = wrapper.getAttribute("data-play");
+    const threshold = parseFloat(wrapper.getAttribute("threshold") || "0");
     const shouldAutoPlay =
-      isMobileDevice || playBehavior === 'autoplay' || video.hasAttribute('autoplay');
+      isMobileDevice ||
+      playBehavior === "autoplay" ||
+      video.hasAttribute("autoplay");
     const loadVideo = () => {
-      if (video.dataset.loaded === 'true') return;
-      video.dataset.loaded = 'true';
+      if (video.dataset.loaded === "true") return;
+      video.dataset.loaded = "true";
       if (mp4Src) {
-        const mp4Source = document.createElement('source');
+        const mp4Source = document.createElement("source");
         mp4Source.src = mp4Src;
         mp4Source.type = 'video/mp4; codecs="hvc1"';
         video.appendChild(mp4Source);
       }
       if (webmSrc) {
-        const webmSource = document.createElement('source');
+        const webmSource = document.createElement("source");
         webmSource.src = webmSrc;
-        webmSource.type = 'video/webm';
+        webmSource.type = "video/webm";
         video.appendChild(webmSource);
       }
       video.load();
       video.oncanplay = () => {
         if (shouldAutoPlay) {
           video.muted = true;
-          video.play().catch(() => { });
+          video.play().catch(() => {});
         }
       };
     };
     // Special case for videos inside .media_card: delay
-    if (video.closest('.media_card')) {
+    if (video.closest(".media_card")) {
       setTimeout(() => {
         loadVideo();
       }, 1000);
     } else {
       // Lazy load on intersection
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && windowHasLoaded) {
-            loadVideo();
-            obs.unobserve(wrapper);
-          }
-        });
-      }, { threshold, rootMargin: '1000px' });
+      const observer = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && windowHasLoaded) {
+              loadVideo();
+              obs.unobserve(wrapper);
+            }
+          });
+        },
+        { threshold, rootMargin: "1000px" }
+      );
       observer.observe(wrapper);
-      video.dataset.observing = 'true';
+      video.dataset.observing = "true";
     }
     // Optional: hover-based play for desktop
-    if (playBehavior === 'on-hover' && !isMobileDevice) {
-      wrapper.addEventListener('mouseenter', () => {
-        if (video.dataset.loaded === 'true') video.play();
+    if (playBehavior === "on-hover" && !isMobileDevice) {
+      wrapper.addEventListener("mouseenter", () => {
+        if (video.dataset.loaded === "true") video.play();
       });
-      wrapper.addEventListener('mouseleave', () => {
-        if (video.dataset.loaded === 'true') video.pause();
+      wrapper.addEventListener("mouseleave", () => {
+        if (video.dataset.loaded === "true") video.pause();
       });
     }
   });
 });
 // Step 3: Watch for resize and update sources & poster dynamically
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   const newIsMobile = window.innerWidth <= 767;
   if (newIsMobile !== currentIsMobileViewport) {
     currentIsMobileViewport = newIsMobile;
-    videoWrappers.forEach(wrapper => {
-      const video = wrapper.querySelector('video');
+    videoWrappers.forEach((wrapper) => {
+      const video = wrapper.querySelector("video");
       if (!video) return;
       // Update poster
       const newPoster = newIsMobile
-        ? wrapper.getAttribute('mobile-video-poster') || wrapper.getAttribute('video-poster')
-        : wrapper.getAttribute('video-poster');
+        ? wrapper.getAttribute("mobile-video-poster") ||
+          wrapper.getAttribute("video-poster")
+        : wrapper.getAttribute("video-poster");
       if (newPoster) {
-        video.setAttribute('poster', newPoster);
+        video.setAttribute("poster", newPoster);
       }
       // Clear existing sources
       while (video.firstChild) {
@@ -260,29 +269,29 @@ window.addEventListener('resize', () => {
       }
       // Add new sources
       const newMp4Src = newIsMobile
-        ? wrapper.getAttribute('mobile-src-mp4') || wrapper.getAttribute('src-mp4')
-        : wrapper.getAttribute('src-mp4');
+        ? wrapper.getAttribute("mobile-src-mp4") ||
+          wrapper.getAttribute("src-mp4")
+        : wrapper.getAttribute("src-mp4");
       const newWebmSrc = newIsMobile
-        ? wrapper.getAttribute('mobile-src-webm') || wrapper.getAttribute('src-webm')
-        : wrapper.getAttribute('src-webm');
+        ? wrapper.getAttribute("mobile-src-webm") ||
+          wrapper.getAttribute("src-webm")
+        : wrapper.getAttribute("src-webm");
       if (newMp4Src) {
-        const mp4Source = document.createElement('source');
+        const mp4Source = document.createElement("source");
         mp4Source.src = newMp4Src;
         mp4Source.type = 'video/mp4; codecs="hvc1"';
         video.appendChild(mp4Source);
       }
       if (newWebmSrc) {
-        const webmSource = document.createElement('source');
+        const webmSource = document.createElement("source");
         webmSource.src = newWebmSrc;
-        webmSource.type = 'video/webm';
+        webmSource.type = "video/webm";
         video.appendChild(webmSource);
       }
       video.load();
     });
   }
 });
-
-
 
 //Custom Cursor Script
 document.addEventListener("DOMContentLoaded", () => {
@@ -291,12 +300,15 @@ document.addEventListener("DOMContentLoaded", () => {
   cursor.classList.add("custom_cursor");
   document.body.appendChild(cursor);
   let currentParent = null;
-  let mouseX = 0, mouseY = 0;
+  let mouseX = 0,
+    mouseY = 0;
   let isCursorActive = false;
   // Function to update cursor position smoothly
   const updateCursorPosition = () => {
     requestAnimationFrame(() => {
-      cursor.style.transform = `translate(${mouseX}px, ${mouseY}px) scale(${isCursorActive ? 1 : 0.8})`;
+      cursor.style.transform = `translate(${mouseX}px, ${mouseY}px) scale(${
+        isCursorActive ? 1 : 0.8
+      })`;
     });
   };
   // Function to check if cursor is inside a `data-cursor` element
@@ -348,9 +360,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-
-
-//Bottom Stcky Script
 // document.addEventListener("DOMContentLoaded", () => {
 //   const navContainer = document.querySelector(".floating_navs");
 //   const navList = document.querySelector(".floating_nav_unorder"); // UL containing items
@@ -488,19 +497,17 @@ document.addEventListener("DOMContentLoaded", () => {
 //   handleFloatingNavVisibility();
 // });
 
-
-
 //Logos Destroyed Slider Script
-document.querySelectorAll('[data-swiper-enable]').forEach((element) => {
+document.querySelectorAll("[data-swiper-enable]").forEach((element) => {
   let swiperInstance = null;
   const manageSwiper = () => {
-    const viewport = parseInt(element.getAttribute('data-swiper-enable'), 10);
+    const viewport = parseInt(element.getAttribute("data-swiper-enable"), 10);
     const shouldEnable = window.innerWidth <= viewport; // Enable for screens less than or equal to the viewport
     if (shouldEnable) {
       if (!swiperInstance) {
         // Ensure swiper-slide elements are set for "auto"
-        element.querySelectorAll('.swiper-slide').forEach((slide) => {
-          slide.style.width = 'auto'; // Allow Swiper to handle width dynamically
+        element.querySelectorAll(".swiper-slide").forEach((slide) => {
+          slide.style.width = "auto"; // Allow Swiper to handle width dynamically
         });
         // Initialize Swiper with continuous marquee-like settings
         swiperInstance = new Swiper(element, {
@@ -509,7 +516,7 @@ document.querySelectorAll('[data-swiper-enable]').forEach((element) => {
           speed: 1000, // Smooth and slow speed for continuous motion
           autoplay: {
             delay: 1,
-            disableOnInteraction: false
+            disableOnInteraction: false,
           },
         });
       }
@@ -524,10 +531,8 @@ document.querySelectorAll('[data-swiper-enable]').forEach((element) => {
   // Initial check on page load
   manageSwiper();
   // Add event listener for screen resize
-  window.addEventListener('resize', manageSwiper);
+  window.addEventListener("resize", manageSwiper);
 });
-
-
 
 //Support Swiper Slider Script
 var swiper = new Swiper("#supportSwiper", {
@@ -542,8 +547,6 @@ var swiper = new Swiper("#supportSwiper", {
     },
   },
 });
-
-
 
 //Productivity Swiper Slider Script
 var swiper = new Swiper("#productivitySwiper", {
@@ -576,8 +579,6 @@ var swiper = new Swiper("#productivitySwiper", {
   },
   freeMode: true,
 });
-
-
 
 //Testimonial Swiper Slider Script
 var swiper = new Swiper("#testimonialSwiper", {
