@@ -15,100 +15,73 @@ class PageLoader {
   }
 
   createLoader() {
-    // Create loading overlay
-    this.loadingOverlay = document.createElement("div");
-    this.loadingOverlay.id = "page-loading-overlay";
-    this.loadingOverlay.innerHTML = `
-            <div class="loader-container">
-                <div class="loader-content">
-                    <div class="spinner"></div>
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
-                        </div>
-                        <div class="progress-text" id="progress-text">Loading... 0%</div>
-                    </div>
-                </div>
-            </div>
-        `;
+    // Find existing loader or create overlay
+    this.loaderFill = document.querySelector(".loader-fill[loader-fill]");
+    this.clickLoader = document.querySelector(".click-loader");
 
-    const styles = `
-            <style>
-                #page-loading-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(255, 255, 255, 0.95);
-                    z-index: 9999;
-                    display: none;
-                    backdrop-filter: blur(5px);
-                }
+    if (!this.loaderFill) {
+      console.warn(
+        "⚠️ Loader element not found. Make sure your HTML includes the .click-loader structure"
+      );
+      return;
+    }
 
-                .loader-container {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100%;
-                }
+    // Create overlay if click-loader isn't already positioned fixed
+    if (
+      !this.clickLoader.style.position &&
+      getComputedStyle(this.clickLoader).position !== "fixed"
+    ) {
+      this.loadingOverlay = document.createElement("div");
+      this.loadingOverlay.id = "page-loading-overlay";
+      this.loadingOverlay.innerHTML = this.clickLoader.outerHTML;
 
-                .loader-content {
-                    text-align: center;
-                    padding: 20px;
-                }
+      // Add overlay styles
+      const styles = `
+                <style>
+                    #page-loading-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(255, 255, 255, 0.95);
+                        z-index: 9999;
+                        display: none;
+                        backdrop-filter: blur(5px);
+                    }
 
-                .spinner {
-                    width: 50px;
-                    height: 50px;
-                    border: 4px solid #f3f3f3;
-                    border-top: 4px solid #3498db;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                    margin: 0 auto 20px;
-                }
+                    #page-loading-overlay .click-loader {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 300px;
+                        height: 5px;
+                    }
 
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
+                    .click-loader .loader-fill {
+                        height: 100%;
+                        width: 0%;
+                        border-radius: 4px;
+                    }
+                        
+                </style>
+            `;
 
-                .progress-container {
-                    width: 300px;
-                    margin: 0 auto;
-                }
+      document.head.insertAdjacentHTML("beforeend", styles);
+      document.body.appendChild(this.loadingOverlay);
 
-                .progress-bar {
-                    width: 100%;
-                    height: 8px;
-                    background-color: #e0e0e0;
-                    border-radius: 4px;
-                    overflow: hidden;
-                    margin-bottom: 10px;
-                }
+      // Update reference to the new loader in overlay
+      this.loaderFill = this.loadingOverlay.querySelector(
+        ".loader-fill[loader-fill]"
+      );
+    } else {
+      // Use existing loader, just hide it initially
+      this.clickLoader.style.display = "none";
+    }
 
-                .progress-fill {
-                    height: 100%;
-                    background: linear-gradient(90deg, #3498db, #2ecc71);
-                    width: 0%;
-                    transition: width 0.3s ease;
-                    border-radius: 4px;
-                }
-
-                .progress-text {
-                    font-family: Arial, sans-serif;
-                    font-size: 14px;
-                    color: #666;
-                    font-weight: 500;
-                }
-            </style>
-        `;
-
-    document.head.insertAdjacentHTML("beforeend", styles);
-    document.body.appendChild(this.loadingOverlay);
-
-    this.progressBar = document.getElementById("progress-fill");
-    this.progressText = document.getElementById("progress-text");
+    // Initialize loader fill width
+    this.loaderFill.style.width = "0%";
   }
 
   interceptLinks() {
@@ -140,25 +113,35 @@ class PageLoader {
   }
 
   showLoader() {
-    this.loadingOverlay.style.display = "block";
+    if (this.loadingOverlay) {
+      this.loadingOverlay.style.display = "block";
+    } else {
+      this.clickLoader.style.display = "block";
+    }
     this.currentProgress = 0;
     this.updateProgress(0, "Initializing...");
     console.log("📊 Loading overlay displayed");
   }
 
   hideLoader() {
-    this.loadingOverlay.style.display = "none";
+    if (this.loadingOverlay) {
+      this.loadingOverlay.style.display = "none";
+    } else {
+      this.clickLoader.style.display = "none";
+    }
     console.log("✅ Loading overlay hidden");
   }
 
   updateProgress(percent, message = "") {
     this.currentProgress = Math.min(percent, 100);
-    this.progressBar.style.width = this.currentProgress + "%";
+
+    // Update your loader-fill div width
+    if (this.loaderFill) {
+      this.loaderFill.style.width = this.currentProgress + "%";
+    }
 
     const displayMessage =
       message || `Loading... ${Math.round(this.currentProgress)}%`;
-    this.progressText.textContent = displayMessage;
-
     console.log(
       `📈 Progress: ${Math.round(this.currentProgress)}% - ${displayMessage}`
     );
@@ -167,11 +150,11 @@ class PageLoader {
   simulateProgress(url) {
     const stages = [
       { progress: 10, message: "Preparing request...", delay: 100 },
-      { progress: 25, message: "Connecting to server...", delay: 200 },
-      { progress: 40, message: "Sending request...", delay: 150 },
-      { progress: 60, message: "Receiving response...", delay: 300 },
-      { progress: 80, message: "Processing content...", delay: 200 },
-      { progress: 95, message: "Finalizing...", delay: 150 },
+      { progress: 25, message: "Connecting to server...", delay: 150 },
+      { progress: 40, message: "Sending request...", delay: 100 },
+      { progress: 60, message: "Receiving response...", delay: 150 },
+      { progress: 80, message: "Processing content...", delay: 50 },
+      { progress: 95, message: "Finalizing...", delay: 50 },
       { progress: 100, message: "Complete!", delay: 100 },
     ];
 
