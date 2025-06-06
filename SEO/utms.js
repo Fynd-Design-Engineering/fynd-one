@@ -52,8 +52,8 @@ const cache = {
 function createDefaultUTMParams() {
   // Global UTM Parameters Object - accessible throughout the document
   window.utmParams = {
-    utm_source: window.location.hostname || "Unknown Source",
-    utm_medium: window.location.pathname || "Unknown Page",
+    utm_source: document.location.hostname || "Unknown",
+    utm_medium: document.location.pathname || "Unknown",
     utm_campaign: "",
     utm_source_platform: "",
     utm_term: "",
