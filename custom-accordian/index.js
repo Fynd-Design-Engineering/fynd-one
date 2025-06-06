@@ -201,7 +201,8 @@ function updateFaqGroupImage(wrapper, groupName) {
   const newSrcset = imageSource.getAttribute("srcset");
 
   if (newSrc) groupImage.setAttribute("src", newSrc);
-  if (newSrcset) groupImage.setAttribute("srcset", newSrcset);
+  if (newSrcset) groupImage.setAttribute("srcset", "");
+  //removing srcset for now
 }
 
 // Function to ensure at least one FAQ is open in "one-at-a-time" mode
