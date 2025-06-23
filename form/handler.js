@@ -431,7 +431,7 @@ function overrideWebflowFormSubmission() {
         // Track form submission time to set up delayed redirection
         window._formSubmissionTime = Date.now();
         posthog.capture(
-          "form_submitted",
+          "fynd_form_submitted",
           window.getTrackingPropertiesWithForm(
             window.interactedForm || "unknown_form"
           )
