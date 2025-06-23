@@ -9,7 +9,6 @@
 //   }, 100);
 // });
 
-
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("wf-form-Ebook-Download");
 
@@ -35,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Watch for DOM changes to detect success message
       observer.observe(document.body, { childList: true, subtree: true });
     } else {
-      form.reportValidity(); // Trigger browser's native validation UI
+      form.reportValidity();
     }
   });
 });
