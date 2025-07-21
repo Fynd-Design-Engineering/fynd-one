@@ -429,15 +429,7 @@ function overrideWebflowFormSubmission() {
 
         console.log("Validation passed, allowing form submission");
         window.validationPassed = true;
-        // Restore redirection logic - but use a more reliable approach
-        // Track form submission time to set up delayed redirection
         window._formSubmissionTime = Date.now();
-        // posthog.capture(
-        //   "fynd_form_submitted",
-        //   window.getTrackingPropertiesWithForm(
-        //     window.interactedForm || "unknown_form"
-        //   )
-        // );
 
         // Set up a delayed redirection that gives Webflow time to process
         setTimeout(function () {

@@ -7,7 +7,7 @@
   window.phoneValidator = {};
 
   document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(function() {
+    setTimeout(function () {
       initializePhoneInputs();
     }, 100);
   });
@@ -24,13 +24,14 @@
 
       try {
         const iti = window.intlTelInput(input, {
-          utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+          utilsScript:
+            "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
           separateDialCode: true,
           initialCountry: "auto",
-          geoIpLookup: function(callback) {
+          geoIpLookup: function (callback) {
             fetch("https://ipapi.co/json")
-              .then(res => res.json())
-              .then(data => callback(data.country_code))
+              .then((res) => res.json())
+              .then((data) => callback(data.country_code))
               .catch(() => callback("in"));
           },
           nationalMode: false,
@@ -40,7 +41,7 @@
         });
 
         input.iti = iti;
-        
+
         input.addEventListener("countrychange", function () {
           console.log("Country changed to:", iti.getSelectedCountryData());
         });
@@ -86,7 +87,7 @@
           const fullNumber = iti.getNumber();
           const countryData = iti.getSelectedCountryData();
           const countryCode = countryData.dialCode;
-          
+
           return {
             isValid: true,
             message: "Valid number (standard validation)",
@@ -95,7 +96,7 @@
             phoneNumber: fullNumber.substring(1 + countryCode.length),
             countryIso: countryData.iso2,
             countryName: countryData.name,
-            validationMethod: "standard"
+            validationMethod: "standard",
           };
         }
       } catch (error) {
@@ -123,16 +124,23 @@
             phoneNumber: digitsOnly,
             countryIso: "us",
             countryName: "United States",
-            formatInternational: `+1 ${digitsOnly.slice(0, 3)} ${digitsOnly.slice(3, 6)} ${digitsOnly.slice(6)}`,
-            formatNational: `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6)}`,
-            validationMethod: "custom"
+            formatInternational: `+1 ${digitsOnly.slice(
+              0,
+              3
+            )} ${digitsOnly.slice(3, 6)} ${digitsOnly.slice(6)}`,
+            formatNational: `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(
+              3,
+              6
+            )}-${digitsOnly.slice(6)}`,
+            validationMethod: "custom",
           };
         } else {
           return {
             isValid: false,
-            message: digitsOnly.length !== 10 
-              ? `US numbers must be 10 digits (got ${digitsOnly.length})` 
-              : "US numbers cannot start with 0 or 1"
+            message:
+              digitsOnly.length !== 10
+                ? `US numbers must be 10 digits (got ${digitsOnly.length})`
+                : "US numbers cannot start with 0 or 1",
           };
         }
       }
@@ -148,16 +156,20 @@
             phoneNumber: digitsOnly,
             countryIso: "in",
             countryName: "India",
-            formatInternational: `+91 ${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5)}`,
+            formatInternational: `+91 ${digitsOnly.slice(
+              0,
+              5
+            )} ${digitsOnly.slice(5)}`,
             formatNational: `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5)}`,
-            validationMethod: "custom"
+            validationMethod: "custom",
           };
         } else {
           return {
             isValid: false,
-            message: digitsOnly.length !== 10 
-              ? `Indian mobile numbers must be 10 digits (got ${digitsOnly.length})` 
-              : "Indian mobile numbers must start with 6, 7, 8, or 9"
+            message:
+              digitsOnly.length !== 10
+                ? `Indian mobile numbers must be 10 digits (got ${digitsOnly.length})`
+                : "Indian mobile numbers must start with 6, 7, 8, or 9",
           };
         }
       }
@@ -174,11 +186,15 @@
             phoneNumber: digitsOnly.slice(1),
             countryIso: "gb",
             countryName: "United Kingdom",
-            validationMethod: "custom"
+            validationMethod: "custom",
           };
         }
         // UK landline numbers (01xxx or 02xxx)
-        if (digitsOnly.length >= 10 && digitsOnly.length <= 11 && /^0[12]/.test(digitsOnly)) {
+        if (
+          digitsOnly.length >= 10 &&
+          digitsOnly.length <= 11 &&
+          /^0[12]/.test(digitsOnly)
+        ) {
           return {
             isValid: true,
             message: "Valid UK landline number",
@@ -187,7 +203,7 @@
             phoneNumber: digitsOnly.slice(1),
             countryIso: "gb",
             countryName: "United Kingdom",
-            validationMethod: "custom"
+            validationMethod: "custom",
           };
         }
       }
@@ -204,7 +220,7 @@
             phoneNumber: digitsOnly.slice(1),
             countryIso: "au",
             countryName: "Australia",
-            validationMethod: "custom"
+            validationMethod: "custom",
           };
         }
       }
@@ -220,7 +236,7 @@
             phoneNumber: digitsOnly,
             countryIso: "ca",
             countryName: "Canada",
-            validationMethod: "custom"
+            validationMethod: "custom",
           };
         }
       }
@@ -228,18 +244,26 @@
       // If no custom rules match, return invalid
       return {
         isValid: false,
-        message: `No validation rules for ${countryData.name || 'this country'}`
+        message: `No validation rules for ${
+          countryData.name || "this country"
+        }`,
       };
     }
 
     // Helper function to get phone input
     function getPhoneInput(phoneInput) {
       if (typeof phoneInput === "string") {
-        return document.getElementById(phoneInput) || document.querySelector(phoneInput);
+        return (
+          document.getElementById(phoneInput) ||
+          document.querySelector(phoneInput)
+        );
       } else if (phoneInput instanceof HTMLElement) {
         return phoneInput;
       } else {
-        return document.querySelector("#phone-number") || document.querySelector("input[type='tel']");
+        return (
+          document.querySelector("#phone-number") ||
+          document.querySelector("input[type='tel']")
+        );
       }
     }
 
@@ -248,10 +272,10 @@
       // Wait a bit for utils to load
       let attempts = 0;
       while (!window.intlTelInputUtils && attempts < 20) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         attempts++;
       }
-      
+
       return window.validatePhone(phoneInput, phoneNumber);
     };
 
@@ -262,7 +286,7 @@
     window.updateCountryCode = () => {
       const phoneInput = document.querySelector("#phone-number");
       const countryCodeInput = document.querySelector("#country-code");
-      
+
       if (!phoneInput || !countryCodeInput) return;
 
       try {
@@ -283,12 +307,12 @@
     window.validatePhoneNumber = window.validatePhone;
     window.testPhoneNumber = window.validatePhone;
 
-    console.log(
-      "%c Reliable Phone Validator Ready! 🚀",
-      "color: green; font-weight: bold;"
-    );
-    console.log("✅ Uses custom validation rules as primary method");
-    console.log("✅ Falls back to standard validation when available");
-    console.log("✅ Supports: US, India, UK, Australia, Canada");
+    // console.log(
+    //   "%c Reliable Phone Validator Ready! 🚀",
+    //   "color: green; font-weight: bold;"
+    // );
+    // console.log("✅ Uses custom validation rules as primary method");
+    // console.log("✅ Falls back to standard validation when available");
+    // console.log("✅ Supports: US, India, UK, Australia, Canada");
   }
 })();
