@@ -53,6 +53,7 @@ function logUrlParams() {
 
 function updateCountText(totalCount) {
   const totalCountText = document.querySelector("[fynd-filters-count]");
+  const clearAllButton = document.querySelector("[fynd-clear-all]");
   if (!totalCountText) return;
 
   if (totalCount > 0) {

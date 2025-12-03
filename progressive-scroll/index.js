@@ -51,22 +51,22 @@ function initProgressiveScroll() {
       .querySelector(`[fynd-scroll-source="${attributeValue}"]`)
       .getAttribute("fynd-scroll-source");
     lastVisitedSection = localStorage.getItem("lastVisitedSection");
-    console.log(attributeValue);
+    // console.log(attributeValue);
 
     if (
       parseInt(currentSection) === parseInt(endSection) &&
       parseInt(lastVisitedSection) === parseInt(endSection)
     ) {
-      console.log("End of the scroll");
+      // console.log("End of the scroll");
       return;
     } else if (
       parseInt(currentSection) === parseInt(startSection) &&
       parseInt(lastVisitedSection) === parseInt(startSection)
     ) {
-      console.log("Start of the scroll");
+      // console.log("Start of the scroll");
       return;
     } else {
-      console.log("Middle of the page");
+      // console.log("Middle of the page");
       timeout = setTimeout(() => {
         updateStickyImage(attributeValue);
         // store attribute value as lastVisitedSection in local storage
@@ -83,19 +83,19 @@ function initProgressiveScroll() {
       end: "bottom 50%", // Add an end position
       // markers: true,
       onEnter: () => {
-        console.log("Enter:", section.getAttribute("fynd-scroll-source"));
+        // console.log("Enter:", section.getAttribute("fynd-scroll-source"));
         debouncedScrollTrigger(section.getAttribute("fynd-scroll-source"));
       },
       onEnterBack: () => {
-        console.log("Enter Back:", section.getAttribute("fynd-scroll-source"));
+        // console.log("Enter Back:", section.getAttribute("fynd-scroll-source"));
         debouncedScrollTrigger(section.getAttribute("fynd-scroll-source"));
       },
       onLeave: () => {
-        console.log("Leave:", section.getAttribute("fynd-scroll-source"));
+        // console.log("Leave:", section.getAttribute("fynd-scroll-source"));
         debouncedScrollTrigger(section.getAttribute("fynd-scroll-source"));
       },
       onLeaveBack: () => {
-        console.log("Leave Back:", section.getAttribute("fynd-scroll-source"));
+        // console.log("Leave Back:", section.getAttribute("fynd-scroll-source"));
         debouncedScrollTrigger(section.getAttribute("fynd-scroll-source"));
       },
     });
@@ -148,11 +148,11 @@ function dynamicColorMobile() {
   const bgColor = document
     .querySelector("[fynd-sticky-bg]")
     .getAttribute("fynd-sticky-bg");
-  console.log(
-    "%cprogressive-scroll/index.js:151 bgColor",
-    "color: #007acc;",
-    bgColor
-  );
+  // console.log(
+  //   "%cprogressive-scroll/index.js:151 bgColor",
+  //   "color: #007acc;",
+  //   bgColor
+  // );
   document.querySelectorAll("[fynd-card-bg-mobile]").forEach((element) => {
     if (/^#([0-9A-F]{3}){1,2}$/i.test(bgColor)) {
       element.style.backgroundColor = bgColor;
